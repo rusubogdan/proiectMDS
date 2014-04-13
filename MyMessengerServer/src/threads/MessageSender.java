@@ -5,15 +5,15 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-
 import message.Message;
 
-public class MessageSender extends Thread {
+public class MessageSender {
 
 	private boolean isCancelled = false;
 	private Socket socket;
 	private BlockingQueue<Message> blockingQueue;
 	private ObjectOutputStream objectOutputStream;
+	Message message = null;
 
 	public MessageSender(Socket socket) {
 		this.socket = socket;
@@ -23,22 +23,22 @@ public class MessageSender extends Thread {
 	public void addToQueue(Message message) {
 		blockingQueue.add(message);
 	}
-	
+
 	public void cancel() {
 		isCancelled = true;
 	}
-	
-	
-	public void run() {
+
+	public void activate() {
 		try {
 			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-			Message message;
 
 			while (!isCancelled) {
 				try {
 					message = blockingQueue.poll(5, TimeUnit.SECONDS);
-					if(message.message == null) continue;
+					if (message == null)
+						continue;
 					objectOutputStream.writeObject(message);
+					objectOutputStream.flush();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

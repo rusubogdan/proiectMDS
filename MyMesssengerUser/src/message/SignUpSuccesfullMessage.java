@@ -1,11 +1,25 @@
 package message;
 
-public class SignUpSuccesfullMessage extends Message {
+import com.entities.User;
+
+public class SignUpSuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
+	private User user = null;
 
 	public SignUpSuccesfullMessage() {
-		super(null, null, null);
+	}
+
+	public void interactOnServer() {
+
+	}
+
+	public void interactOnClient() {
+
+	}
+
+	public User getUser() {
+		return user;
 	}
 
 }

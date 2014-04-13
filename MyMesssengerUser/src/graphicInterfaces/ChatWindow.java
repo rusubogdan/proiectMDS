@@ -6,12 +6,18 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
+import message.ChatMessage;
 import message.Message;
+import message.SignInMessage;
+import message.SignUpMessage;
+
+import com.entities.User;
 
 public class ChatWindow {
 
@@ -24,10 +30,11 @@ public class ChatWindow {
 	private Socket socket;
 	private Message message;
 	private ObjectOutputStream objectOutputStream;
+	private JTextField usernameTF;
+	private JTextField passwordTF;
+	private JTextField confirmPasswordTF;
+	private JButton btnSignIn_1;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -62,17 +69,20 @@ public class ChatWindow {
 			public void actionPerformed(ActionEvent e) {
 				messageToSend = messageField.getText();
 				messageField.setText("");
-				message = new Message(null, messageToSend, null);
+				User user = new User();
+				ArrayList<User> list = new ArrayList<User>();
+
+				message = new ChatMessage(user, messageToSend, list);
 				try {
 					objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 					objectOutputStream.writeObject(message);
 					objectOutputStream.flush();
 				} catch (Exception ewew) {
-
+					ewew.printStackTrace();
 				}
 			}
 		});
-		messageField.setBounds(10, 172, 312, 79);
+		messageField.setBounds(10, 172, 201, 79);
 		frame.getContentPane().add(messageField);
 		messageField.setColumns(10);
 
@@ -81,17 +91,19 @@ public class ChatWindow {
 			public void actionPerformed(ActionEvent e) {
 				messageToSend = messageField.getText();
 				messageField.setText("");
-				message = new Message(null, messageToSend, null);
+				User user = new User();
+				ArrayList<User> list = new ArrayList<User>();
+				message = new ChatMessage(user, messageToSend, list);
 				try {
 					objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 					objectOutputStream.writeObject(message);
 					objectOutputStream.flush();
 				} catch (Exception ewew) {
-
+					ewew.printStackTrace();
 				}
 			}
 		});
-		sendButton.setBounds(332, 181, 89, 52);
+		sendButton.setBounds(235, 218, 101, 33);
 		frame.getContentPane().add(sendButton);
 
 		JButton btnConnect = new JButton("Connect");
@@ -107,13 +119,97 @@ public class ChatWindow {
 				}
 			}
 		});
-		btnConnect.setBounds(332, 75, 89, 23);
+		btnConnect.setBounds(332, 11, 89, 23);
 		frame.getContentPane().add(btnConnect);
 
 		textField = new JTextField();
 		textField.setEditable(false);
-		textField.setBounds(10, 11, 312, 150);
+		textField.setBounds(10, 11, 201, 150);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
+
+		usernameTF = new JTextField();
+		usernameTF.setBounds(255, 76, 154, 20);
+		frame.getContentPane().add(usernameTF);
+		usernameTF.setColumns(10);
+
+		passwordTF = new JTextField();
+		passwordTF.setBounds(255, 107, 154, 20);
+		frame.getContentPane().add(passwordTF);
+		passwordTF.setColumns(10);
+
+		confirmPasswordTF = new JTextField();
+		confirmPasswordTF.setBounds(255, 138, 154, 20);
+		frame.getContentPane().add(confirmPasswordTF);
+		confirmPasswordTF.setColumns(10);
+
+		JButton btnSignIn = new JButton("Sign Up");
+		btnSignIn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String username = new String(), password = new String(), passwordConfirm = new String();
+
+				username = usernameTF.getText();
+				password = passwordTF.getText();
+				passwordConfirm = confirmPasswordTF.getText();
+
+				if (username.equals(""))
+					System.out.println("Username field must not be empty!");
+				else {
+					if (password.equals("") || passwordConfirm.equals("")
+							|| !password.equals(passwordConfirm))
+						System.out
+								.println("Password field is empty or not well confirmed!");
+					else {
+						Message signUpMessage = new SignUpMessage(username, password);
+
+						try {
+							objectOutputStream = new ObjectOutputStream(socket
+									.getOutputStream());
+							objectOutputStream.writeObject(signUpMessage);
+							objectOutputStream.flush();
+
+						} catch (Exception ewew) {
+							System.out.println("ups");
+						}
+					}
+				}
+			}
+		});
+		btnSignIn.setBounds(332, 172, 89, 23);
+		frame.getContentPane().add(btnSignIn);
+
+		btnSignIn_1 = new JButton("Sign In");
+		btnSignIn_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				String username = new String(), password = new String();
+				username = usernameTF.getText();
+				password = passwordTF.getText();
+
+				if (username.equals(""))
+					System.out.println("Username field must not be empty!");
+				else {
+					if (password.equals(""))
+						System.out.println("Password field is empty !");
+					else {
+						Message signUpMessage = new SignInMessage(username, password);
+
+						try {
+							objectOutputStream = new ObjectOutputStream(socket
+									.getOutputStream());
+							objectOutputStream.writeObject(signUpMessage);
+							objectOutputStream.flush();
+
+						} catch (Exception ewew) {
+							System.out.println("ups");
+						}
+					}
+				}
+
+			}
+		});
+		btnSignIn_1.setBounds(235, 172, 89, 23);
+		frame.getContentPane().add(btnSignIn_1);
 	}
 }

@@ -1,16 +1,32 @@
 package message;
 
-import java.util.List;
-
 import com.entities.User;
 
-public class DeclineFriendMessage extends Message {
+public class DeclineFriendMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-
-	public DeclineFriendMessage(User theUserWhoRequestedFriendship,
-			List<User> theUserWhoDeclined) {
-		super(theUserWhoRequestedFriendship, null, theUserWhoDeclined);
+	private User user;
+	private User possiblyFriend;
+	
+	public DeclineFriendMessage(User user, User possiblyFriend) {
+		this.user = user;
+		this.possiblyFriend = possiblyFriend;
 	}
 
+	public void interactOnServer() {
+
+	}
+
+	public void interactOnClient() {
+
+	}
+
+	public User getUser() {
+		return user;
+	}
+	
+	public User getPossibleyFriend() {
+		return possiblyFriend;
+	}
+	
 }

@@ -1,16 +1,40 @@
 package message;
 
-import java.io.Serializable;
+import graphicInterfacesServer.Connection;
+
 import com.entities.User;
 
-public class SignOutMessage extends Message implements Serializable {
-	//ca si server vreau sa stiu carui user ii raspund printr-un mesaj de logOut la requestul de logOut
-	//log out-ul poate fi doar cu succes; eventuala exceptie se trateaza in server
-	//not sure if I need this class
-	protected SignOutMessage(User user) {
-		super(user, null, null);
-	}
+public class SignOutMessage implements Message {
+	// ca si server vreau sa stiu pe cine deconectez
+	// sign out-ul poate fi doar cu succes; eventuala exceptie se trateaza in
+	// server
 
 	private static final long serialVersionUID = 1L;
+	private User user;
+	private Connection connection;
+
+	public SignOutMessage(User user) {
+		this.user = user;
+	}
+
+	public void interactOnServer() {
+
+	}
+
+	public void interactOnClient() {
+
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+
+	public Connection getConnection() {
+		return connection;
+	}
 
 }
