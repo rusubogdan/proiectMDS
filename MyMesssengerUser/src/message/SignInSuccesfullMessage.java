@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import com.entities.User;
 
 public class SignInSuccesfullMessage implements Message {
@@ -16,7 +18,7 @@ public class SignInSuccesfullMessage implements Message {
 	}
 
 	public void interactOnClient() {
-
+		ChatWindow.openNewWindow();
 	}
 
 	public User getUser() {

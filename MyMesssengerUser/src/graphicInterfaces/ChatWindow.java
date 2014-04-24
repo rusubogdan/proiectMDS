@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
+import threads.MessageReceiver;
 import message.ChatMessage;
 import message.Message;
 import message.SignInMessage;
@@ -30,10 +31,16 @@ public class ChatWindow {
 	private Socket socket;
 	private Message message;
 	private ObjectOutputStream objectOutputStream;
-	private JTextField usernameTF;
-	private JTextField passwordTF;
-	private JTextField confirmPasswordTF;
 	private JButton btnSignIn_1;
+	private static JTextField passwordTF;
+	private static JTextField confirmPasswordTF;
+	private static JTextField usernameTF;
+
+	public static void clearFields() {
+		usernameTF.setText("");
+		passwordTF.setText("");
+		confirmPasswordTF.setText("");
+	}
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -108,11 +115,15 @@ public class ChatWindow {
 
 		JButton btnConnect = new JButton("Connect");
 		btnConnect.addActionListener(new ActionListener() {
+			@SuppressWarnings("unused")
+			private MessageReceiver messageReceiver = null;
+
 			public void actionPerformed(ActionEvent e) {
 
 				try {
 					socket = new Socket(serverAddress, serverPort);
 					System.out.println("Connection Success!");
+					messageReceiver = new MessageReceiver(socket);
 
 				} catch (IOException ee) {
 					ee.printStackTrace();
@@ -211,5 +222,14 @@ public class ChatWindow {
 		});
 		btnSignIn_1.setBounds(235, 172, 89, 23);
 		frame.getContentPane().add(btnSignIn_1);
+	}
+
+	public static void openNewWindow() {
+		ListOfUsersWindow.openWindow();
+	}
+
+	public static void openWarningWindow() {
+		WarningWindow.openWindow();
+		
 	}
 }

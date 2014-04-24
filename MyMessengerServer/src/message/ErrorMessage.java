@@ -10,6 +10,26 @@ public class ErrorMessage implements Message {
 	private User user;
 	private String message;
 	private Connection connection;
+	private Connection connectionOfSender;
+
+	public Connection getConnectionOfSender() {
+		return connectionOfSender;
+	}
+
+	public void setConnectionOfSender(Connection connectionOfSender) {
+		this.connectionOfSender = connectionOfSender;
+	}
+
+	public Connection getConnectionOfReceiver() {
+		return connectionOfReceiver;
+	}
+
+	public void setConnectionOfReceiver(Connection connectionOfReceiver) {
+		this.connectionOfReceiver = connectionOfReceiver;
+	}
+
+	private Connection connectionOfReceiver;
+	
 	
 	public ErrorMessage(User user, String message) {
 		// prin campul message trimit = user/friend inexistent
@@ -17,7 +37,8 @@ public class ErrorMessage implements Message {
 		this.message = message;
 	}
 
-	public void interactOnServer() {
+	public void interactOnServer(Connection connectionOfSender,
+			Connection connectionOfReceiver) {
 
 	}
 

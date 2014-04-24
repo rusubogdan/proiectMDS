@@ -8,13 +8,32 @@ public class SignInSuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user = null;
-	private Connection connection;
-	
-	public SignInSuccesfullMessage() {
-		
+	private Connection connectionOfSender;
+
+	public Connection getConnectionOfSender() {
+		return connectionOfSender;
 	}
 
-	public void interactOnServer() {
+	public void setConnectionOfSender(Connection connectionOfSender) {
+		this.connectionOfSender = connectionOfSender;
+	}
+
+	public Connection getConnectionOfReceiver() {
+		return connectionOfReceiver;
+	}
+
+	public void setConnectionOfReceiver(Connection connectionOfReceiver) {
+		this.connectionOfReceiver = connectionOfReceiver;
+	}
+
+	private Connection connectionOfReceiver;
+
+	public SignInSuccesfullMessage() {
+
+	}
+
+	public void interactOnServer(Connection connectionOfSender,
+			Connection connectionOfReceiver) {
 
 	}
 
@@ -26,12 +45,5 @@ public class SignInSuccesfullMessage implements Message {
 		return user;
 	}
 
-	public void setConnection(Connection connection) {
-		this.connection = connection;
-	}
-
-	public Connection getConnection() {
-		return connection;
-	}
 
 }

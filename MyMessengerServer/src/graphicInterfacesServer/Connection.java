@@ -2,29 +2,38 @@ package graphicInterfacesServer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
 import javax.swing.JTextField;
 
-import com.entities.User;
-
 import message.Message;
 import threads.MessageSender;
-import threads.MessageThread;
 
-public class Connection extends Thread {
+import com.entities.User;
+
+public class Connection extends Thread implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private Socket clientSocket;
 	private ObjectInputStream inputStream;
+	@SuppressWarnings("unused")
 	private JTextField textField;
 	private Message messageObject;
-	private static boolean isCanceled = false;
+	private boolean isCanceled = false;
 	private User user = null;
 	private static MessageSender messageSender;
 
 	private Object object;
 
-	public static synchronized void cancel() {
+	public synchronized void cancel() {
 		isCanceled = true;
+		messageSender.cancel();
+		try {
+			clientSocket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public synchronized boolean connectionClosed() {
@@ -35,14 +44,14 @@ public class Connection extends Thread {
 		return clientSocket;
 	}
 
-	public User getUser() {
+	public synchronized User getUser() {
 		return user;
 	}
 
 	// daca user-ul e null inseamna ca nu s-a definitivat conexiunea cu un user
 	// ex: inca nu s-a logat sau inca nu s-a inregistrat
 
-	public void setUser(User user) {
+	synchronized public void setUser(User user) {
 		this.user = user;
 	}
 
@@ -50,9 +59,8 @@ public class Connection extends Thread {
 
 		this.clientSocket = client;
 		this.textField = textField;
-		messageSender = new MessageSender(clientSocket);
-
 		this.start();
+		messageSender = new MessageSender(clientSocket);
 	}
 
 	public void run() {
@@ -64,17 +72,28 @@ public class Connection extends Thread {
 					object = inputStream.readObject();
 					System.out.println((object.getClass()) + " aici ");
 					messageObject = (Message) object;
-					//MessageThread.addToQueueMess(message, this, connectionOfReceiver);
-					messageObject.interactOnServer();
-				} catch (Exception e) {
+					messageObject.interactOnServer(this, null);
+				} catch (IOException e) {
+					//e.printStackTrace();
+					System.out.println("ioexception");
+					this.cancel();
+				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
+					System.out.println("clnfexception");
+					
+				} finally {
+					System.out.println("conexiunea a fost inchisa");
 				}
 
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+			System.out.println("conexiunea a fost inchisa ; user-ul s-a deconectat");
+			this.cancel();
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
+			System.out.println("socketul nu este bun");
+			this.cancel();
 		}
 
 	}

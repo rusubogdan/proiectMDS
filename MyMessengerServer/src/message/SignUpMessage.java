@@ -2,8 +2,9 @@ package message;
 
 import graphicInterfacesServer.Connection;
 import graphicInterfacesServer.ManageUsers;
-import graphicInterfacesServer.MessagesPanel;
 import graphicInterfacesServer.MyPair;
+import threads.MessageThread;
+import threads.ServerThread;
 
 import com.entities.User;
 
@@ -14,29 +15,52 @@ public class SignUpMessage implements Message {
 	private String username;
 	private String password;
 	private ManageUsers manager;
-	private Connection connection;
+
+	// private Connection connectionOfSender;
+	// private Connection connectionOfReceiver;
+
+	public Connection getConnectionOfSender() {
+		return null;
+	}
+
+	public void setConnectionOfSender(Connection connectionOfSender) {
+		// this.connectionOfSender = connectionOfSender;
+	}
+
 	private MyPair usernameId;
 
-	public SignUpMessage(String username, String password) {
+	public SignUpMessage(String username, String password,
+			Connection connectionOfSeConnection, Connection connectionOfReceiver) {
 		this.username = username;
 		this.password = password;
 	}
 
-	public void interactOnServer() {
+	public void interactOnServer(Connection connectionOfSender,
+			Connection connectionOfReceiver) {
 		System.out.println("din sign up server");
 
-		if (!MessagesPanel.isTakken(username)) {
+		// adaug, iau ID si fac o pereche (nume,id) dupa care setez conexiunile
+		// si trimit mai departe
+
+		// aici e null cand mesajul e de la server la server
+
+		if (!ServerThread.isTakken(username)) {
 			manager = new ManageUsers();
 			user = new User(username, password, null, null, null, null, null, null, null);
 			long id = manager.addUser(user);
 			usernameId = new MyPair();
 			usernameId.setUsername(username);
 			usernameId.setUserId(id);
-			MessagesPanel.addUserId(usernameId);
+			ServerThread.addUserId(usernameId);
+			// o lista cu id-ul userilor inregistrati in sesiunea curenta
 			user = null;
+			Message msg = new SignUpSuccesfullMessage();
+			MessageThread.addToQueueMess(msg, connectionOfReceiver, connectionOfSender);
+			//apelez cu receiver / sender pentru ca acu se schimba sensul de trimitere
+			
 		} else {
 			Message msg = new SignUpUnsuccesfullMessage();
-			connection.addToQueueConnection(msg);
+			MessageThread.addToQueueMess(msg, connectionOfSender, connectionOfReceiver);
 		}
 
 	}
@@ -57,11 +81,11 @@ public class SignUpMessage implements Message {
 		return password;
 	}
 
-	public Connection getConnection() {
-		return connection;
+	public Connection getConnectionOfReceiver() {
+		return null;
 	}
 
-	public void setConnection(Connection connection) {
-		this.connection = connection;
+	public void setConnectionOfReceiver(Connection connectionOfReceiver) {
+		// this.connectionOfReceiver = connectionOfReceiver;
 	}
 }

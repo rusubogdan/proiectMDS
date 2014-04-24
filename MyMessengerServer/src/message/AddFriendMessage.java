@@ -9,14 +9,16 @@ public class AddFriendMessage implements Message {
 	private static final long serialVersionUID = 1L;
 	private User user;
 	private User friend;
-	private Connection connection;
-
+	private Connection connectionOfSender;
+	private Connection connectionOfReceiver;
+	
 	protected AddFriendMessage(User user, User friends) {
 		this.user = user;
 		this.friend = friends;
 	}
 
-	public void interactOnServer() {
+	public void interactOnServer(Connection connectionOfSender,
+			Connection connectionOfReceiver) {
 
 	}
 
@@ -32,11 +34,19 @@ public class AddFriendMessage implements Message {
 		return friend;
 	}
 
-	public void setConnection(Connection connection) {
-		this.connection = connection;
+	public void setConnectionOfSender(Connection connection) {
+		this.connectionOfSender = connection;
 	}
 
-	public Connection getConnection() {
-		return connection;
+	public Connection getConnectionOfSender() {
+		return connectionOfSender;
+	}
+
+	public Connection getConnectionOfReceiver() {
+		return connectionOfReceiver;
+	}
+
+	public void setConnectionOfReceiver(Connection connectionOfReceiver) {
+		this.connectionOfReceiver = connectionOfReceiver;
 	}
 }

@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import com.entities.User;
 
 public class SignUpUnsuccesfullMessage implements Message {
@@ -15,7 +17,8 @@ public class SignUpUnsuccesfullMessage implements Message {
 	}
 
 	public void interactOnClient() {
-
+		System.out.println("unsuccesfull on client");
+		ChatWindow.clearFields();
 	}
 
 	public User getUser() {

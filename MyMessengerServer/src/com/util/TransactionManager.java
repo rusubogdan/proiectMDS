@@ -8,6 +8,7 @@ public class TransactionManager {
 	
 	public static Session getCurrentSession() {
 		if(currentTransaction == null) {
+			currentTransaction = new ThreadLocal<Transaction>();
 			currentTransaction.set(HibernateUtil.getSessionFactory().getCurrentSession().beginTransaction());
 		}
 		return HibernateUtil.getSessionFactory().getCurrentSession();

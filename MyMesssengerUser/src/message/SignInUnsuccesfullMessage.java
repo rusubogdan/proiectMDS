@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import com.entities.User;
 
 public class SignInUnsuccesfullMessage implements Message {
@@ -15,7 +17,7 @@ public class SignInUnsuccesfullMessage implements Message {
 	}
 
 	public void interactOnClient() {
-
+		ChatWindow.openWarningWindow();
 	}
 
 	public User getUser() {
