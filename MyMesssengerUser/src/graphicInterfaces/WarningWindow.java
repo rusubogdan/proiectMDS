@@ -8,9 +8,6 @@ public class WarningWindow {
 
 	private JFrame frame;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void openWindow() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

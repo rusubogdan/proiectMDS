@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import java.util.List;
 
 import com.entities.User;
@@ -22,7 +24,7 @@ public class ChatMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
 

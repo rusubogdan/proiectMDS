@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import com.entities.User;
 
 public class AddFriendMessage implements Message {
@@ -17,7 +19,7 @@ public class AddFriendMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
 

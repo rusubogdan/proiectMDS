@@ -3,6 +3,7 @@ package message;
 import java.util.List;
 
 import threads.MessageThread;
+import threads.ServerThread;
 import graphicInterfacesServer.Connection;
 import graphicInterfacesServer.ManageUsers;
 
@@ -58,7 +59,18 @@ public class SignInMessage implements Message {
 	
 		if(hasBeenFind) {
 			Message msg = new SignInSuccesfullMessage();
-			MessageThread.addToQueueMess(msg, connectionOfReceiver, connectionOfSender); 
+			MessageThread.addToQueueMess(msg, connectionOfReceiver, connectionOfSender);
+		
+			ServerThread.addToOnlineUsersQueue(user);
+			//adaug userul la useri online
+			
+			connectionOfSender.setUser(user);
+			//acum conexiunea este legatura dintre un user existent in baza de date 
+			//si restul conexiunilor
+	
+			ServerThread.trigger(connectionOfSender);
+			//se declanseaza trimiterea la toti userii lista celorlalti useri
+			
 		} else {
 			Message msg = new SignInUnsuccesfullMessage();
 			MessageThread.addToQueueMess(msg, connectionOfReceiver, connectionOfSender); 

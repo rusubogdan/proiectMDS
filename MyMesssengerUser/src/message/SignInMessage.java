@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import com.entities.User;
 
 public class SignInMessage implements Message {
@@ -18,7 +20,7 @@ public class SignInMessage implements Message {
 		System.out.println("sunt pe server");
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
 

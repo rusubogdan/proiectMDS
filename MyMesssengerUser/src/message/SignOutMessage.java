@@ -1,5 +1,7 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
+
 import com.entities.User;
 
 public class SignOutMessage implements Message {
@@ -18,7 +20,7 @@ public class SignOutMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
 

@@ -16,8 +16,8 @@ public class SignInUnsuccesfullMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
-		ChatWindow.openWarningWindow();
+	public void interactOnClient(ChatWindow chatWindow) {
+		chatWindow.openWarningWindow();
 	}
 
 	public User getUser() {

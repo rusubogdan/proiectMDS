@@ -16,9 +16,9 @@ public class SignUpUnsuccesfullMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 		System.out.println("unsuccesfull on client");
-		ChatWindow.clearFields();
+		chatWindow.clearFields();
 	}
 
 	public User getUser() {

@@ -1,5 +1,6 @@
 package message;
 
+import graphicInterfaces.ChatWindow;
 import graphicInterfaces.ManageUsers;
 
 import com.entities.User;
@@ -23,7 +24,7 @@ public class SignUpMessage implements Message {
 		manager.addUser(username, password, null, null, null, null, null, null, null);
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
 

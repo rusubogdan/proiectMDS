@@ -17,8 +17,8 @@ public class SignInSuccesfullMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
-		ChatWindow.openNewWindow();
+	public void interactOnClient(ChatWindow chatWindow) {
+		chatWindow.instantiate();
 	}
 
 	public User getUser() {

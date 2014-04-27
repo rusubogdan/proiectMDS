@@ -1,6 +1,7 @@
 package threads;
 
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
@@ -27,8 +28,9 @@ public class MessageSender extends Thread {
 		messagesToSend.add(message);
 	}
 
-	public void cancel() {
+	public synchronized void cancel() {
 		isCancelled = true;
+		System.out.println("senderul a fost inchis");
 	}
 
 	public void run() {
@@ -45,12 +47,17 @@ public class MessageSender extends Thread {
 					objectOutputStream.writeObject(message);
 					objectOutputStream.flush();
 					System.out.println("I flushed a message " + message.getClass());
+				} catch (InvalidClassException ice) {
+					ice.printStackTrace();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 		} catch (IOException e) {
+			System.out.println("IOE in messageSender");
 			e.printStackTrace();
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
 		}
 	}
 

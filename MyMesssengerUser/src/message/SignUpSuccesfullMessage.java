@@ -17,10 +17,10 @@ public class SignUpSuccesfullMessage implements Message {
 
 	}
 
-	public void interactOnClient() {
+	public void interactOnClient(ChatWindow chatWindow) {
 		System.out.println("SignUp successfull!");
 		
-		ChatWindow.clearFields();
+		chatWindow.clearFields();
 		
 		
 		

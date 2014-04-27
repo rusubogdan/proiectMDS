@@ -1,14 +1,18 @@
 package graphicInterfacesServer;
 
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.io.StreamCorruptedException;
 import java.net.Socket;
+import java.net.SocketException;
 
 import javax.swing.JTextField;
 
 import message.Message;
 import threads.MessageSender;
+import threads.ServerThread;
 
 import com.entities.User;
 
@@ -69,20 +73,35 @@ public class Connection extends Thread implements Serializable {
 
 			while (!isCanceled) {
 				try {
+					object = null;
 					object = inputStream.readObject();
 					System.out.println((object.getClass()) + " aici ");
+
 					messageObject = (Message) object;
 					messageObject.interactOnServer(this, null);
-				} catch (IOException e) {
-					//e.printStackTrace();
-					System.out.println("ioexception");
+
+				} catch (SocketException se) {
+					System.out.println("Client disconnected!");
+					if (user != null)
+						ServerThread.removeFromOnlineUsersQueue(user);
 					this.cancel();
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
 					System.out.println("clnfexception");
-					
-				} finally {
-					System.out.println("conexiunea a fost inchisa");
+					this.cancel();
+
+				} catch (InvalidClassException ice) {
+					ice.printStackTrace();
+					this.cancel();
+
+				} catch (StreamCorruptedException sce) {
+					sce.printStackTrace();
+					this.cancel();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+					System.out.println("ioexception");
+					this.cancel();
 				}
 
 			}

@@ -13,7 +13,6 @@ import com.util.TransactionManager;
 
 //am de modificat cu warning-urile de la transaction si cu dead code-ul
 
-
 @SuppressWarnings("unchecked")
 public class ManageUsers extends Thread {
 
@@ -26,11 +25,10 @@ public class ManageUsers extends Thread {
 
 	public List<User> getListOfUsers() {
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 		List<User> listOfUsers = null;
 		try {
 			session = TransactionManager.getCurrentSession();
-			
+
 			listOfUsers = session.createQuery("from User").list();
 
 			TransactionManager.commit();
@@ -44,17 +42,16 @@ public class ManageUsers extends Thread {
 
 	public User getUser(long userId) {
 		session = sessionFactory.getCurrentSession();
-		TransactionManager transaction = null;
 		User result = null;
 		try {
-			transaction = (TransactionManager) session.beginTransaction();
+			session = TransactionManager.getCurrentSession();
+
 			result = (User) session.get(User.class, userId);
 
-			transaction.commit();
+			TransactionManager.commit();
 
 		} catch (HibernateException he) {
-			if (transaction != null)
-				transaction.rollback();
+			TransactionManager.rollback();
 			he.printStackTrace();
 		}
 		return result;
@@ -62,27 +59,25 @@ public class ManageUsers extends Thread {
 
 	public void setAsFriends(User user, User friend) {
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 		try {
-			transaction = (TransactionManager) session.beginTransaction();
+			session = TransactionManager.getCurrentSession();
 
 			Friend newFriend = new Friend(user, friend);
+
 			session.save(newFriend);
 
-			transaction.commit();
+			TransactionManager.commit();
 
 		} catch (HibernateException he) {
-			if (transaction != null)
-				transaction.rollback();
+			TransactionManager.rollback();
 			he.printStackTrace();
 		}
 	}
 
 	public void setAsFriends(long userId, long friendId) {
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 		try {
-			transaction = (TransactionManager) session.beginTransaction();
+			session = TransactionManager.getCurrentSession();
 
 			User user = (User) session.load(User.class, userId);
 			User friend = (User) session.load(User.class, friendId);
@@ -91,32 +86,29 @@ public class ManageUsers extends Thread {
 
 			session.save(newFriend);
 
-			transaction.commit();
+			TransactionManager.commit();
 
 		} catch (HibernateException he) {
-			if (transaction != null)
-				transaction.rollback();
+			TransactionManager.rollback();
 			he.printStackTrace();
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public long addUser(User user) {
 
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 		long id = 0;
-
+		System.out.println("e in addUser");
 		try {
 			session = TransactionManager.getCurrentSession();
 
 			id = (Long) session.save(user);
 
 			TransactionManager.commit();
+			System.out.println("a dat commit");
 
 		} catch (HibernateException he) {
-			if (transaction != null)
-				TransactionManager.rollback();
+			TransactionManager.rollback();
 			he.printStackTrace();
 		}
 
@@ -124,13 +116,11 @@ public class ManageUsers extends Thread {
 
 	}
 
-	@SuppressWarnings("unused")
 	public long addUser(String username, String password, String firstName,
 			String middleName, String lastName, String mobileNumber,
 			String homePhoneNumber, String address, String joinDate) {
 
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 		long id = 0;
 
 		try {
@@ -143,8 +133,7 @@ public class ManageUsers extends Thread {
 			TransactionManager.commit();
 
 		} catch (HibernateException he) {
-			if (transaction != null)
-				TransactionManager.rollback();
+			TransactionManager.rollback();
 			he.printStackTrace();
 		}
 
@@ -155,7 +144,6 @@ public class ManageUsers extends Thread {
 	public void updateUser(User user) {
 
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 
 		try {
 			session = TransactionManager.getCurrentSession();
@@ -171,20 +159,18 @@ public class ManageUsers extends Thread {
 
 	public void deleteUser(Long id) {
 		session = sessionFactory.openSession();
-		TransactionManager transaction = null;
 
 		try {
-
-			transaction = (TransactionManager) session.beginTransaction();
+			session = TransactionManager.getCurrentSession();
 
 			User user = (User) session.get(User.class, id);
+
 			session.delete(user);
 
-			transaction.commit();
+			TransactionManager.commit();
 
 		} catch (HibernateException he) {
-			if (transaction != null)
-				transaction.rollback();
+			TransactionManager.rollback();
 			he.printStackTrace();
 		}
 	}

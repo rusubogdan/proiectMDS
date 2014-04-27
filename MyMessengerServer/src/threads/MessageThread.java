@@ -17,7 +17,6 @@ public class MessageThread extends Thread {
 	private boolean isCancelled = false;
 	private Message message = null;
 	private static Connection connectionOfReceiver = null;
-	private static Connection connectionOfSender = null;
 	private static BlockingQueue<Message> blockingQueue = new LinkedBlockingQueue<Message>();
 
 	public synchronized void cancel() {
@@ -26,10 +25,11 @@ public class MessageThread extends Thread {
 
 	public static synchronized void addToQueueMess(Message message,
 			Connection connOfSender, Connection connOfReceiver) {
-		connectionOfSender = connOfSender;
 		connectionOfReceiver = connOfReceiver;
 		blockingQueue.add(message);
 	}
+	
+	
 
 	public MessageThread() {
 		this.start();
