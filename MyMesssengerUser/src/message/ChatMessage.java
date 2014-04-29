@@ -2,22 +2,25 @@ package message;
 
 import graphicInterfaces.ChatWindow;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.entities.User;
 
 public class ChatMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user;
+	private String user;
 	private String message;
-	private List<User> friends;
+	private ArrayList<String> friends;
+	private ChatWindow chatWindow;
 
-	// din client catre server, apoi din server catre prietenii user-ului
-	public ChatMessage(User user, String message, List<User> friends) {
+	public ChatMessage(String user, String message, ArrayList<String> friends) {
 		this.user = user;
 		this.message = message;
 		this.friends = friends;
+	}
+
+	public void interactOnClient() {
+		System.out.println(message);
 	}
 
 	public void interactOnServer() {
@@ -28,7 +31,7 @@ public class ChatMessage implements Message {
 
 	}
 
-	public User getUser() {
+	public String getUser() {
 		return user;
 	}
 
@@ -36,7 +39,15 @@ public class ChatMessage implements Message {
 		return message;
 	}
 
-	public List<User> getFriends() {
+	public List<String> getFriends() {
 		return friends;
+	}
+
+	public void setChatWindow(ChatWindow chatWindow) {
+		this.chatWindow = chatWindow;
+	}
+
+	public ChatWindow getChatWindow() {
+		return chatWindow;
 	}
 }

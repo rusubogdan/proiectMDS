@@ -8,8 +8,8 @@ public class SignUpSuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user = null;
-	private Connection connectionOfSender = null;
-	private Connection connectionOfReceiver = null;
+	private transient Connection connectionOfSender = null;
+	private transient Connection connectionOfReceiver = null;
 
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;
@@ -36,7 +36,6 @@ public class SignUpSuccesfullMessage implements Message {
 	}
 
 	public void interactOnClient() {
-		System.out.println("succes pe serverrrr");
 	}
 
 	public User getUser() {

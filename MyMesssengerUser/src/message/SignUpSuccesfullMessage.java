@@ -8,7 +8,6 @@ public class SignUpSuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user = null;
-	
 
 	public SignUpSuccesfullMessage() {
 	}
@@ -17,18 +16,31 @@ public class SignUpSuccesfullMessage implements Message {
 
 	}
 
+	public void interactOnClient() {
+
+	}
+
 	public void interactOnClient(ChatWindow chatWindow) {
 		System.out.println("SignUp successfull!");
-		
+
 		chatWindow.clearFields();
-		
-		
-		
 
 	}
 
 	public User getUser() {
 		return user;
+	}
+
+	@Override
+	public void setChatWindow(ChatWindow chatWindow) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ChatWindow getChatWindow() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

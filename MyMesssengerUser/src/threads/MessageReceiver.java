@@ -13,7 +13,7 @@ public class MessageReceiver extends Thread {
 
 	private Socket socket;
 	private ObjectInputStream objectInputStream;
-	public static boolean isCanceled = false;
+	public boolean isCanceled = false;
 	private Message message;
 	private ChatWindow chatWindow;
 
@@ -23,11 +23,20 @@ public class MessageReceiver extends Thread {
 		this.start();
 	}
 
+	public synchronized void close() {
+		try {
+			socket.close();
+			objectInputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public Socket getSocket() {
 		return this.socket;
 	}
 
-	public static synchronized void cancel() {
+	public synchronized void cancel() {
 		isCanceled = true;
 		System.out.println("Receiverul a fost inchis");
 	}
@@ -36,27 +45,34 @@ public class MessageReceiver extends Thread {
 		try {
 			objectInputStream = new ObjectInputStream(socket.getInputStream());
 			System.out.println("Client receiver is online");
+			
 			while (!isCanceled) {
+				
 				message = (Message) objectInputStream.readObject();
+				
 				System.out.println("am primit :" + message.getClass());
-				message.interactOnClient(chatWindow);
+				
+				message.setChatWindow(this.chatWindow);
+				
+				this.message.interactOnClient();
 			}
 
 		} catch (StreamCorruptedException sce) {
 			System.out.println("Stream corrupted exception ");
 		} catch (IOException e) {
-			MessageReceiver.cancel();
+			this.cancel();
 			System.out.println("IOE  Serverul a fost inchis");
 			// daca serverul a fost inchis revin la fereastra principala
 		} catch (ClassNotFoundException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			System.out.println("class not found exception");
 			// nu are de ce sa imi intre aici
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Server or connection to server has been closed!");
 		} finally {
-			MessageReceiver.cancel();
-			ChatWindow.closeAll();
+			this.cancel();
+			chatWindow.disconnectFromServer();
 		}
 	}
 

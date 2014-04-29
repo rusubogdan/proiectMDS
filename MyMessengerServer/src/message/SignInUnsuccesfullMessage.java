@@ -8,9 +8,8 @@ public class SignInUnsuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user = null;
-	private Connection connectionOfSender;
-	private Connection connectionOfReceiver;
-	
+	private transient Connection connectionOfSender;
+	private transient Connection connectionOfReceiver;
 
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;
@@ -28,7 +27,11 @@ public class SignInUnsuccesfullMessage implements Message {
 		this.connectionOfReceiver = connectionOfReceiver;
 	}
 
-	public SignInUnsuccesfullMessage() {
+	public SignInUnsuccesfullMessage(Connection connectionOfSender,
+			Connection connectionOfReceiver) {
+		this.connectionOfSender = connectionOfSender;
+		this.connectionOfReceiver = connectionOfReceiver;
+		
 	}
 
 	public void interactOnServer(Connection connectionOfSender,
@@ -43,6 +46,5 @@ public class SignInUnsuccesfullMessage implements Message {
 	public User getUser() {
 		return user;
 	}
-
 
 }

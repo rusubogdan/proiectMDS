@@ -25,8 +25,7 @@ public class Connection extends Thread implements Serializable {
 	private Message messageObject;
 	private boolean isCanceled = false;
 	private User user = null;
-	private static MessageSender messageSender;
-
+	private MessageSender messageSender;
 	private Object object;
 
 	public synchronized void cancel() {
@@ -40,6 +39,10 @@ public class Connection extends Thread implements Serializable {
 
 	}
 
+	public Connection() {
+		
+	}
+	
 	public synchronized boolean connectionClosed() {
 		return isCanceled;
 	}
@@ -53,7 +56,7 @@ public class Connection extends Thread implements Serializable {
 	}
 
 	// daca user-ul e null inseamna ca nu s-a definitivat conexiunea cu un user
-	// ex: inca nu s-a logat sau inca nu s-a inregistrat
+	// ex: inca nu s-a logat
 
 	synchronized public void setUser(User user) {
 		this.user = user;
@@ -64,7 +67,7 @@ public class Connection extends Thread implements Serializable {
 		this.clientSocket = client;
 		this.textField = textField;
 		this.start();
-		messageSender = new MessageSender(clientSocket);
+		messageSender = new MessageSender(clientSocket, this);
 	}
 
 	public void run() {
@@ -75,9 +78,12 @@ public class Connection extends Thread implements Serializable {
 				try {
 					object = null;
 					object = inputStream.readObject();
-					System.out.println((object.getClass()) + " aici ");
+					
+					System.out.println(("Am citit un : " + object.getClass()) );
 
 					messageObject = (Message) object;
+					messageObject.setConnectionOfSender(this);
+					messageObject.setConnectionOfReceiver(null); 
 					messageObject.interactOnServer(this, null);
 
 				} catch (SocketException se) {
@@ -111,7 +117,7 @@ public class Connection extends Thread implements Serializable {
 			this.cancel();
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-			System.out.println("socketul nu este bun");
+			System.out.println("socketul este NULL");
 			this.cancel();
 		}
 

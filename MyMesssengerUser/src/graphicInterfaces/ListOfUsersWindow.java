@@ -1,25 +1,32 @@
 package graphicInterfaces;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
-import com.entities.User;
+
+import message.SignOutMessage;
 
 public class ListOfUsersWindow {
 
-	private JFrame frame;
-	private DefaultListModel<String> listModel;
+	public JFrame frame;
+	private static DefaultListModel<String> listModel = new DefaultListModel<String>();;
 	@SuppressWarnings("rawtypes")
 	private JList list;
+	private ChatWindow chatWindow = null;
 
-	private void openWindow() {
+	public void openWindow() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					frame.setVisible(true);
+					
 					System.out.println("in openWindow");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -28,17 +35,30 @@ public class ListOfUsersWindow {
 		});
 	}
 
-	public ListOfUsersWindow() {
+	public ListOfUsersWindow(ChatWindow chatWindow) {
+		openWindow();
+		this.chatWindow = chatWindow;
 		initialize();
-		//openWindow();
-		System.out.println("in constructorul clasei ListOfUser");
+		System.out.println("in constructorul clasei ListOfUserWindow");
 	}
 
-	public synchronized void addUsersToList(ArrayList<User> listOfUsers) {
-		listModel.clear();
-		for (User user : listOfUsers) {
-			listModel.addElement(user.getUsername());
+	public synchronized static void addUsersToList(ArrayList<String> listOfUsers) {
+		System.out.println("adaugare useri la lista in listOfUsersWindow");
+
+		for (String name : listOfUsers) {
+			System.out.print(name);
 		}
+		System.out.println();
+
+		listModel.clear();
+
+		for (String name : listOfUsers) {
+			listModel.addElement(name);
+		}
+	}
+
+	public synchronized void openChatWindow(String friend, ChatWindow chatWindow) {
+		new UserChatWindow(friend, chatWindow);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -50,6 +70,7 @@ public class ListOfUsersWindow {
 		frame.setBounds(100, 100, 283, 418);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		frame.setVisible(true);
 
 		JButton button = new JButton("+");
 		button.setBounds(10, 38, 41, 23);
@@ -59,11 +80,49 @@ public class ListOfUsersWindow {
 		btnNewGroup.setBounds(65, 38, 89, 23);
 		frame.getContentPane().add(btnNewGroup);
 
-		listModel = new DefaultListModel<String>();
+		
 
 		list = new JList(listModel);
+		list.addMouseListener(new MouseAdapter() {
+
+			public void mouseClicked(MouseEvent e) {
+				if (list.getSelectedValuesList().size() != 0) {
+
+					ArrayList<Object> listOfUsers = (ArrayList<Object>) list
+							.getSelectedValuesList();
+					String friend = new String();
+
+					if (listOfUsers.size() > 1)
+						return;
+					if (e.getClickCount() == 2) {
+						friend = (String) listOfUsers.get(0);
+						System.out.println("........................." + friend);
+						chatWindow.openConversation(friend, chatWindow);
+						openChatWindow(friend, chatWindow);
+
+					}
+				}
+
+			}
+		});
 
 		list.setBounds(27, 89, 204, 253);
 		frame.getContentPane().add(list);
+
+		JButton btnSignOut = new JButton("Sign Out");
+		btnSignOut.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.dispose();
+				
+				SignOutMessage message = new SignOutMessage();
+				message.setName(chatWindow.name);
+				chatWindow.sendMessageToServer(message);
+				
+				chatWindow.disconnectFromServer();
+				ChatWindow.main(null);
+			}
+		});
+		btnSignOut.setBounds(168, 38, 89, 23);
+		frame.getContentPane().add(btnSignOut);
 	}
 }

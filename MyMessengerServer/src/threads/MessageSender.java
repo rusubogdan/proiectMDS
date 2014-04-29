@@ -1,13 +1,19 @@
 package threads;
 
+import graphicInterfacesServer.Connection;
+
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import com.entities.User;
+
+import message.ListOfFriendsMessage;
 import message.Message;
 
 public class MessageSender extends Thread {
@@ -16,15 +22,17 @@ public class MessageSender extends Thread {
 	private Socket socket;
 	private BlockingQueue<Message> messagesToSend;
 	private ObjectOutputStream objectOutputStream;
-	Message message = null;
+	private Message message = null;
+	private Connection connection;
 
-	public MessageSender(Socket socket) {
+	public MessageSender(Socket socket, Connection connection) {
 		messagesToSend = new LinkedBlockingQueue<>();
 		this.socket = socket;
+		this.connection = connection;
 		this.start();
 	}
 
-	public void addToQueue(Message message) {
+	public synchronized void addToQueue(Message message) {
 		messagesToSend.add(message);
 	}
 
@@ -35,7 +43,9 @@ public class MessageSender extends Thread {
 
 	public void run() {
 		try {
-			System.out.println("I am activated");
+
+			System.out.println("MessageSender-ul e activat");
+
 			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
 
 			while (!isCancelled) {
@@ -43,10 +53,31 @@ public class MessageSender extends Thread {
 					message = messagesToSend.poll(5, TimeUnit.SECONDS);
 					if (message == null)
 						continue;
+					ListOfFriendsMessage lst = new ListOfFriendsMessage();
+					if (message.getClass().equals(ListOfFriendsMessage.class)) {
 
+						lst = (ListOfFriendsMessage) message;
+
+						System.out.println("Trimit lui: "
+								+ this.connection.getUser().getUsername() + " lista");
+
+						ArrayList<String> fr = new ArrayList<String>();
+
+						for (User u : lst.getFriends()) {
+							System.out.print(u.getUsername() + " ");
+							fr.add(u.getUsername());
+
+						}
+						System.out.println();
+						lst.setFriendsByName(fr);
+						message = lst;
+					}
+					System.out.println("Trimit lui: "
+							+ this.connection.getUser().getUsername() + " un "
+							+ message.getClass());
 					objectOutputStream.writeObject(message);
 					objectOutputStream.flush();
-					System.out.println("I flushed a message " + message.getClass());
+
 				} catch (InvalidClassException ice) {
 					ice.printStackTrace();
 				} catch (InterruptedException e) {

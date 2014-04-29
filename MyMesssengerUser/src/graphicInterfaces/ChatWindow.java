@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,6 +18,8 @@ import message.Message;
 import message.SignInMessage;
 import message.SignUpMessage;
 import threads.MessageReceiver;
+
+import com.entities.User;
 
 public class ChatWindow {
 
@@ -29,10 +32,18 @@ public class ChatWindow {
 	private JTextField passwordTF;
 	private JTextField confirmPasswordTF;
 	private JTextField usernameTF;
-	@SuppressWarnings("unused")
 	private MessageReceiver messageReceiver = null;
-	public ListOfUsersWindow listOfUsersWindow = null;
 	public String name;
+	private boolean isConnectedToServer = false;
+	public ListOfUsersWindow listOfUsersWindow;
+
+	public synchronized void closeWindow() {
+		frame.dispose();
+	}
+
+	public synchronized void showWarningPanel() {
+
+	}
 
 	public void clearFields() {
 		usernameTF.setText("");
@@ -54,40 +65,47 @@ public class ChatWindow {
 		});
 	}
 
-	// private void connectToServer() {
-	// try {
-	// socket = new Socket(serverAddress, serverPort);
-	// System.out.println("Connection Success!");
-	// messageReceiver = new MessageReceiver(socket, this);
-	// objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-	// /*
-	// * fac o singura data instantierea objectOutputStream-ului pentru a
-	// * nu avea problema de append la acelasi fisier la serializare;
-	// * astfel scap de StreamCorruptedException si pot sa am mai multe
-	// * sign up-uri de pe aceasi fereastra
-	// */
-	//
-	// } catch (IOException ee) {
-	// ee.printStackTrace();
-	// }
-	// }
+	public synchronized void openConversation(String friend, ChatWindow chatWindow) {
+		User user = new User();
+		@SuppressWarnings("unused")
+		ArrayList<User> friends = new ArrayList<User>();
+		user.setUsername(name);
+
+	}
+
+	private synchronized void connectToServer() {
+		try {
+
+			socket = new Socket(serverAddress, serverPort);
+			System.out.println("Connection Success!");
+			messageReceiver = new MessageReceiver(socket, this);
+			objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+			isConnectedToServer = true;
+
+		} catch (IOException ee) {
+			ee.printStackTrace();
+		}
+	}
+	
+	public synchronized void disconnectFromServer() {
+		try{
+			socket.close();
+			messageReceiver.cancel();
+			objectOutputStream.close();
+			isConnectedToServer = false;
+		} catch(IOException ioe) {
+			ioe.printStackTrace();
+		}
+	}
 
 	public void instantiate() {
-		if (listOfUsersWindow == null)
-			listOfUsersWindow = new ListOfUsersWindow();
+		listOfUsersWindow = new ListOfUsersWindow(this);
 	}
 
 	public ChatWindow() {
 		initialize();
 	}
 
-	public static synchronized void closeAll() {
-		System.out.println("close all");
-	}
-
-	public void initializeMessageRecever() {
-		messageReceiver = new MessageReceiver(socket, this);
-	}
 
 	private synchronized void initialize() {
 		frame = new JFrame();
@@ -95,36 +113,6 @@ public class ChatWindow {
 		frame.setBounds(100, 100, 257, 358);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
-
-		JButton btnConnect = new JButton("Connect");
-		btnConnect.setVisible(true);
-		btnConnect.addActionListener(new ActionListener() {
-			@SuppressWarnings("unused")
-			private MessageReceiver messageReceiver = null;
-
-			public void actionPerformed(ActionEvent e) {
-
-				try {
-					socket = new Socket(serverAddress, serverPort);
-					System.out.println("Connection Success!");
-
-					initializeMessageRecever();
-
-					objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-					/*
-					 * fac o singura data instantierea objectOutputStream-ului
-					 * pentru a nu avea problema de append la acelasi fisier la
-					 * serializare; astfel scap de StreamCorruptedException si
-					 * pot sa am mai multe sign up-uri de pe aceasi fereastra
-					 */
-
-				} catch (IOException ee) {
-					System.out.println("Server is offline");
-				}
-			}
-		});
-		btnConnect.setBounds(10, 11, 89, 23);
-		frame.getContentPane().add(btnConnect);
 
 		usernameTF = new JTextField();
 		usernameTF.setBounds(31, 110, 154, 20);
@@ -145,20 +133,22 @@ public class ChatWindow {
 		btnSignUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
+				if (!isConnectedToServer)
+					connectToServer();
+
 				String username = new String(), password = new String(), passwordConfirm = new String();
 
 				username = usernameTF.getText();
 				password = passwordTF.getText();
 				passwordConfirm = confirmPasswordTF.getText();
 
-				if (username.equals(""))
-					System.out.println("Username field must not be empty!");
-				else {
+				if (username.equals("")) {
+					WarningWindow.openWarningWindow("Username field is empty!");
+				} else {
 					if (password.equals("") || passwordConfirm.equals("")
-							|| !password.equals(passwordConfirm))
-						System.out
-								.println("Password field is empty or not well confirmed!");
-					else {
+							|| !password.equals(passwordConfirm)) {
+						WarningWindow.openWarningWindow("Password field is empty!");
+					} else {
 						Message signUpMessage = new SignUpMessage(username, password);
 
 						try {
@@ -177,7 +167,6 @@ public class ChatWindow {
 					}
 				}
 
-				System.out.println("am terminat cu sign up-ul!!!");
 			}
 		});
 		btnSignUp.setBounds(57, 270, 98, 23);
@@ -187,16 +176,19 @@ public class ChatWindow {
 		btnSignIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
+				if (!isConnectedToServer)
+					connectToServer();
+
 				String username = new String(), password = new String();
 				username = usernameTF.getText();
 				password = passwordTF.getText();
 
-				if (username.equals(""))
-					System.out.println("Username field must not be empty!");
-				else {
-					if (password.equals(""))
-						System.out.println("Password field is empty !");
-					else {
+				if (username.equals("")) {
+					WarningWindow.openWarningWindow("Username field is empty!");
+				} else {
+					if (password.equals("")) {
+						WarningWindow.openWarningWindow("Password field is empty!");
+					} else {
 
 						Message signInMessage = new SignInMessage(username, password);
 
@@ -218,8 +210,6 @@ public class ChatWindow {
 					}
 				}
 
-				System.out.println("am terminat cu sign in-ul!!!");
-
 			}
 		});
 		btnSignIn.setBounds(57, 235, 98, 23);
@@ -238,8 +228,16 @@ public class ChatWindow {
 		frame.getContentPane().add(lblPasswordAgain);
 	}
 
-	public void openWarningWindow() {
-		WarningWindow.openWindow();
-
+	public void sendMessageToServer(Message message) {
+		try {
+			System.out.println("Am trimis mesajul");
+			objectOutputStream.writeObject(message);
+			objectOutputStream.flush();
+		} catch (IOException e) {
+			System.out.println("I/O Exception in chatWindow's sender");
+			e.printStackTrace();
+		} 
+		
 	}
+
 }

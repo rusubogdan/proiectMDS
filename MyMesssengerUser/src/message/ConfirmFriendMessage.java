@@ -4,7 +4,7 @@ import graphicInterfaces.ChatWindow;
 
 import com.entities.User;
 
-public class ConfirmFriendMessage implements Message{
+public class ConfirmFriendMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user;
@@ -19,6 +19,10 @@ public class ConfirmFriendMessage implements Message{
 
 	}
 
+	public void interactOnClient() {
+
+	}
+
 	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
@@ -29,6 +33,18 @@ public class ConfirmFriendMessage implements Message{
 
 	public User getPossiblyFriend() {
 		return possiblyFriend;
+	}
+
+	@Override
+	public void setChatWindow(ChatWindow chatWindow) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ChatWindow getChatWindow() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -21,8 +21,24 @@ public class SignUpUnsuccesfullMessage implements Message {
 		chatWindow.clearFields();
 	}
 
+	public void interactOnClient() {
+
+	}
+
 	public User getUser() {
 		return user;
+	}
+
+	@Override
+	public void setChatWindow(ChatWindow chatWindow) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ChatWindow getChatWindow() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

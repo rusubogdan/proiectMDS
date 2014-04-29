@@ -1,9 +1,9 @@
 package threads;
 
-import graphicInterfacesServer.Connection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import message.Message;
 
 /*
@@ -16,20 +16,15 @@ public class MessageThread extends Thread {
 
 	private boolean isCancelled = false;
 	private Message message = null;
-	private static Connection connectionOfReceiver = null;
 	private static BlockingQueue<Message> blockingQueue = new LinkedBlockingQueue<Message>();
 
 	public synchronized void cancel() {
 		isCancelled = true;
 	}
 
-	public static synchronized void addToQueueMess(Message message,
-			Connection connOfSender, Connection connOfReceiver) {
-		connectionOfReceiver = connOfReceiver;
+	public static synchronized void addToQueueMess(Message message) {
 		blockingQueue.add(message);
 	}
-	
-	
 
 	public MessageThread() {
 		this.start();
@@ -42,7 +37,9 @@ public class MessageThread extends Thread {
 				message = blockingQueue.poll(10, TimeUnit.SECONDS);
 				if (message == null)
 					continue;
-				connectionOfReceiver.addToQueueConnection(message);
+				System.out.println("din messageThread" + message.getClass().getName() 
+						/*+ " catre " + message.getUser().getUsername()*/);
+				message.getConnectionOfReceiver().addToQueueConnection(message);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

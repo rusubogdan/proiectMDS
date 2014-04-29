@@ -1,8 +1,10 @@
 package message;
 
-import graphicInterfacesServer.Connection;
+import threads.ServerThread;
 
 import com.entities.User;
+
+import graphicInterfacesServer.Connection;
 
 public class SignOutMessage implements Message {
 	// ca si server vreau sa stiu pe cine deconectez
@@ -10,9 +12,14 @@ public class SignOutMessage implements Message {
 	// server
 
 	private static final long serialVersionUID = 1L;
-	private User user;
-	private Connection connectionOfSender;
+	private transient Connection connectionOfSender;
+	private transient Connection connectionOfReceiver;
+	private String name;
 
+	public String getName() {
+		return this.name;
+	}
+	
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;
 	}
@@ -29,23 +36,20 @@ public class SignOutMessage implements Message {
 		this.connectionOfReceiver = connectionOfReceiver;
 	}
 
-	private Connection connectionOfReceiver;
-
-	public SignOutMessage(User user) {
-		this.user = user;
-	}
 
 	public void interactOnServer(Connection connectionOfSender,
 			Connection connectionOfReceiver) {
-
+		User user = connectionOfSender.getUser();
+		ServerThread.removeFromOnlineUsersQueue(user);
+	}
+	
+	public void interactOnServer() {
+		User user = connectionOfSender.getUser();
+		ServerThread.removeFromOnlineUsersQueue(user);
 	}
 
 	public void interactOnClient() {
 
-	}
-
-	public User getUser() {
-		return user;
 	}
 
 }

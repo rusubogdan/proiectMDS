@@ -18,6 +18,10 @@ public class SignUpMessage implements Message {
 		this.password = password;
 	}
 
+	public void interactOnClient() {
+
+	}
+
 	public void interactOnServer() {
 		System.out.println("din sign up user");
 		manager = new ManageUsers();
@@ -38,5 +42,17 @@ public class SignUpMessage implements Message {
 
 	public String getPassword() {
 		return password;
+	}
+
+	@Override
+	public void setChatWindow(ChatWindow chatWindow) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ChatWindow getChatWindow() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

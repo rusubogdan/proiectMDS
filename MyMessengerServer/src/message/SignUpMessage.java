@@ -15,16 +15,15 @@ public class SignUpMessage implements Message {
 	private String username;
 	private String password;
 	private ManageUsers manager;
-
-	// private Connection connectionOfSender;
-	// private Connection connectionOfReceiver;
+	private transient Connection connectionOfSender;
+	private transient Connection connectionOfReceiver;
 
 	public Connection getConnectionOfSender() {
-		return null;
+		return connectionOfSender;
 	}
 
 	public void setConnectionOfSender(Connection connectionOfSender) {
-		// this.connectionOfSender = connectionOfSender;
+		 this.connectionOfSender = connectionOfSender;
 	}
 
 	private MyPair usernameId;
@@ -37,6 +36,7 @@ public class SignUpMessage implements Message {
 
 	public void interactOnServer(Connection connectionOfSender,
 			Connection connectionOfReceiver) {
+		
 		System.out.println("din sign up server");
 
 		// adaug, iau ID si fac o pereche (nume,id) dupa care setez conexiunile
@@ -55,12 +55,17 @@ public class SignUpMessage implements Message {
 			// o lista cu id-ul userilor inregistrati in sesiunea curenta
 			user = null;
 			Message msg = new SignUpSuccesfullMessage();
-			MessageThread.addToQueueMess(msg, connectionOfReceiver, connectionOfSender);
-			//apelez cu receiver / sender pentru ca acu se schimba sensul de trimitere
-			
+			msg.setConnectionOfSender(null);
+			msg.setConnectionOfReceiver(connectionOfSender);
+			MessageThread.addToQueueMess(msg);
+			// apelez cu receiver / sender pentru ca acu se schimba sensul de
+			// trimitere
+
 		} else {
 			Message msg = new SignUpUnsuccesfullMessage();
-			MessageThread.addToQueueMess(msg, connectionOfSender, connectionOfReceiver);
+			msg.setConnectionOfSender(null);
+			msg.setConnectionOfReceiver(connectionOfSender);
+			MessageThread.addToQueueMess(msg);
 		}
 
 	}
@@ -82,10 +87,10 @@ public class SignUpMessage implements Message {
 	}
 
 	public Connection getConnectionOfReceiver() {
-		return null;
+		return connectionOfReceiver;
 	}
 
 	public void setConnectionOfReceiver(Connection connectionOfReceiver) {
-		// this.connectionOfReceiver = connectionOfReceiver;
+		 this.connectionOfReceiver = connectionOfReceiver;
 	}
 }

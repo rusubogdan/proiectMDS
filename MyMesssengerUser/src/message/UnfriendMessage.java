@@ -19,6 +19,10 @@ public class UnfriendMessage implements Message {
 		return user;
 	}
 
+	public void interactOnClient() {
+
+	}
+
 	public void interactOnServer() {
 
 	}
@@ -29,6 +33,18 @@ public class UnfriendMessage implements Message {
 
 	public User getFriend() {
 		return friend;
+	}
+
+	@Override
+	public void setChatWindow(ChatWindow chatWindow) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ChatWindow getChatWindow() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

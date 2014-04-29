@@ -4,18 +4,18 @@ import graphicInterfacesServer.Connection;
 
 import java.util.List;
 
-
-import com.entities.User;
+import threads.MessageThread;
+import threads.ServerThread;
 
 public class ChatMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user;
+	private String user;
 	private String message;
-	private List<User> friends;
-	private Connection connectionOfSender;
-	private Connection connectionOfReceiver;
-	
+	private List<String> friends;
+	private transient Connection connectionOfSender;
+	private transient Connection connectionOfReceiver;
+
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;
 	}
@@ -32,9 +32,7 @@ public class ChatMessage implements Message {
 		this.connectionOfReceiver = connectionOfReceiver;
 	}
 
-
-	// din client catre server, apoi din server catre prietenii user-ului
-	public ChatMessage(User user, String message, List<User> friends) {
+	public ChatMessage(String user, String message, List<String> friends) {
 		this.user = user;
 		this.message = message;
 		this.friends = friends;
@@ -43,13 +41,16 @@ public class ChatMessage implements Message {
 	public void interactOnServer(Connection connectionOfSender,
 			Connection connectionOfReceiver) {
 
+		this.connectionOfReceiver = ServerThread.getConnectionByUsername(friends.get(0));
+		MessageThread.addToQueueMess(this);
+
 	}
 
-	public void interactOnClient() {
+	public void interactOnServer() {
 
 	}
 
-	public User getUser() {
+	public String getUser() {
 		return user;
 	}
 
@@ -57,7 +58,7 @@ public class ChatMessage implements Message {
 		return message;
 	}
 
-	public List<User> getFriends() {
+	public List<String> getFriends() {
 		return friends;
 	}
 

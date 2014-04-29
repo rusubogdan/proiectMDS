@@ -1,43 +1,14 @@
 package message;
 
-import java.util.ArrayList;
 import graphicInterfacesServer.Connection;
-import com.entities.User;
 
-public class ListOfFriendsMessage implements Message {
+public class ServerHasBeenClosedMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private ArrayList<User> friends = null;
-	private ArrayList<String> friendsByName = null;
 	private transient Connection connectionOfSender;
 	private transient Connection connectionOfReceiver;
 
-	public ArrayList<User> getFriends() {
-		return friends;
-	}
-
-	public ArrayList<String> getFriendsByName() {
-		return friendsByName;
-	}
-
-	public void setFriendsByName(ArrayList<String> friendsByName) {
-		this.friendsByName = friendsByName;
-	}
-
-	public void setFriends(ArrayList<User> friends) {
-		this.friends = friends;
-	}
-
-	public User getUser() {
-		return null;
-	}
-
 	public void interactOnServer(Connection connection, Connection connection2) {
-
-	}
-
-	public void interactOnClient() {
-
 	}
 
 	public Connection getConnectionOfSender() {

@@ -10,6 +10,7 @@ public class SignInMessage implements Message {
 	private User user = null;
 	private String username;
 	private String password;
+	private ChatWindow chatWindow;
 
 	public SignInMessage(String username, String password) {
 		this.username = username;
@@ -23,6 +24,11 @@ public class SignInMessage implements Message {
 	public void interactOnClient(ChatWindow chatWindow) {
 
 	}
+	
+	public void interactOnClient() {
+
+	}
+	
 
 	public User getUser() {
 		return user;
@@ -34,6 +40,14 @@ public class SignInMessage implements Message {
 
 	public String getPassword() {
 		return password;
+	}
+
+	public void setChatWindow(ChatWindow chatWindow) {
+		this.chatWindow = chatWindow;
+	}
+
+	public ChatWindow getChatWindow() {
+		return chatWindow;
 	}
 
 }

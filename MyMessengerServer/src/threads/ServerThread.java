@@ -1,7 +1,7 @@
 package threads;
 
 import graphicInterfacesServer.Connection;
-import graphicInterfacesServer.MessagesPanel;
+import graphicInterfacesServer.StartServerWindow;
 import graphicInterfacesServer.MyPair;
 
 import java.io.IOException;
@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import message.ListOfFriendsMessage;
 import message.Message;
+import message.ServerHasBeenClosedMessage;
 
 import com.entities.User;
 
@@ -27,7 +28,6 @@ public class ServerThread extends Thread {
 	private static ArrayList<User> onlineUsers = new ArrayList<User>();
 	private ServerSocket serverSocket;
 	private MessageThread messageThread;
-	@SuppressWarnings("unused")
 	private OnlineUsersThread onlineUsersThread;
 
 	public static synchronized void addUserId(MyPair usernameId) {
@@ -35,60 +35,51 @@ public class ServerThread extends Thread {
 	}// ?????????????????????
 
 	public ServerThread() {
-		onlineUsersThread = new OnlineUsersThread();
+		isClosed = false;
+		if (onlineUsersThread == null)
+			onlineUsersThread = new OnlineUsersThread(this);
 		// odata cu instantierea se deschide si fereastra pentru useri online
+		if (messageThread == null)
+			messageThread = new MessageThread();
 		this.start();
-		messageThread = new MessageThread();
 	}
 
-	public static synchronized void trigger(Connection connection) {
-		System.out.println("in trigger din serverThread");
-		sendFriendsToUsers(connection);
+	public static synchronized void trigger() {
+		System.out.println("In trigger din serverThread");
+
+		sendFriendsToUsers();
 	}
 
-	private static synchronized void sendFriendsToUsers(Connection conn) {
-		ArrayList<User> auxList = new ArrayList<User>();
-		//ArrayList<User> auxaux = new ArrayList<User>();
-		//auxaux = onlineUsers;
+	public static synchronized ArrayList<Connection> getConnections() {
+		return connections;
+	}
 
-		ListOfFriendsMessage message = new ListOfFriendsMessage();
-		//message.setFriends(getOnlineUsers());
+	private static synchronized void sendFriendsToUsers() {
+		ListOfFriendsMessage message = null;
+		ArrayList<User> list = null;
+		Connection connection = null;
 
-		for (Connection connection : connections) {
-			if (connection.getUser() != null) {
-				//auxList = message.getFriends();
-				//boolean a = auxList.remove(conn.getUser());
-				// elimin numele conexiunii la care trimit
-				
-				for(User user : onlineUsers)
-					if(!connection.getUser().getUsername().equals(conn.getUser().getUsername()))
-						auxList.add(user);
-				
-				System.out.println();
-				for(User us : auxList)
-					System.out.print(us.getUsername());
-				System.out.println();
-				
-				message.setFriends(auxList);
-				
-				System.out.println(auxList.size());
-				System.out.println(onlineUsers.size());
+		ArrayList<User> LIST = null;
+		LIST = new ArrayList<>(getOnlineUsers());
+		System.out.println("                                 DA a ajuns");
+		for (User user : LIST) {
+			list = new ArrayList<>(getOnlineUsers());
+			connection = getConnectionByUsername(user.getUsername());
 
-				MessageThread.addToQueueMess(message, null, connection);
+			message = new ListOfFriendsMessage();
+			list.remove(user);
+			message.setFriends(list);
 
-				message.setFriends(onlineUsers);
-				
-				auxList.clear();
-				//onlineUsers = auxaux;
-				//System.out.println( "size:" + onlineUsers.size());
-			}
+			message.setConnectionOfReceiver(connection);
+
+			MessageThread.addToQueueMess(message);
+
+			message = null;
 		}
-		
-	//	message.setFriends(auxaux);
 
 	}
 
-	public static Connection getConnectionByUsername(String username) {
+	public synchronized static Connection getConnectionByUsername(String username) {
 
 		for (Connection connection : connections) {
 			if (connection.getUser().getUsername().equals(username)) {
@@ -100,10 +91,9 @@ public class ServerThread extends Thread {
 
 	public synchronized static void addMessageToMessageSender(Message message) {
 		message.getConnectionOfSender().addToQueueConnection(message);
-
 	}
 
-	public static boolean isTakken(String username) {
+	public synchronized static boolean isTakken(String username) {
 		if (userIds.size() == 0)
 			return false;
 		for (MyPair pair : userIds)
@@ -112,7 +102,7 @@ public class ServerThread extends Thread {
 		return false;
 	}
 
-	public static String getUserFromUserIds(User user) {
+	public static synchronized String getUserFromUserIds(User user) {
 		for (MyPair userAndId : userIds) {
 			if (userAndId.getUsername().equals(user))
 				return userAndId.getUsername();
@@ -120,7 +110,7 @@ public class ServerThread extends Thread {
 		return null;
 	}
 
-	public static long getIdFromUserIds(long userId) {
+	public synchronized static long getIdFromUserIds(long userId) {
 		for (MyPair userAndId : userIds) {
 			if (userAndId.getUserId() == userId)
 				return userAndId.getUserId();
@@ -129,7 +119,12 @@ public class ServerThread extends Thread {
 	}
 
 	public synchronized static void removeConnection(Connection connection) {
-		connections.remove(connection);
+		if (connection == null) {
+			for (Connection connection2 : connections) {
+				connection2.cancel();
+			}
+		} else
+			connections.remove(connection);
 
 	}
 
@@ -142,7 +137,7 @@ public class ServerThread extends Thread {
 		}
 	}
 
-	public void cancel() {
+	private static synchronized void cancel() {
 		for (Connection connection : connections) {
 			connection.cancel();
 		}
@@ -150,7 +145,21 @@ public class ServerThread extends Thread {
 
 	public static synchronized void close() {
 		isClosed = true;
+		ServerHasBeenClosedMessage message = new ServerHasBeenClosedMessage();
+		message.setConnectionOfReceiver(null);
+		message.setConnectionOfSender(null);
+		addMessageToMessageSender(message);
+		try {
+			sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		cancel();
 
+	}
+
+	public static synchronized void addConnection(Connection connection) {
+		connections.add(connection);
 	}
 
 	public void run() {
@@ -159,14 +168,14 @@ public class ServerThread extends Thread {
 		Connection connection;
 
 		try {
-			serverSocket = new ServerSocket(serverPort);
+			if (serverSocket == null)
+				serverSocket = new ServerSocket(serverPort);
 			System.out.println("Server is ready!");
-			// serverSocket.setSoTimeout(10000);
 
 			while (!isClosed) {
 				clientSocket = serverSocket.accept();
-				connection = new Connection(clientSocket, MessagesPanel.textField);
-				connections.add(connection);
+				connection = new Connection(clientSocket, StartServerWindow.textField);
+				ServerThread.addConnection(connection);
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -180,13 +189,15 @@ public class ServerThread extends Thread {
 	public synchronized static void addToOnlineUsersQueue(User user) {
 		System.out.println("add to online users  server thread");
 		onlineUsers.add(user);
-		OnlineUsersThread.alter();
+		OnlineUsersThread.alter();// modifica fereastra cu userii online
+		trigger();
 	}
 
 	public synchronized static void removeFromOnlineUsersQueue(User user) {
 		System.out.println("din remove in server thread!!!");
 		onlineUsers.remove(user);
-		OnlineUsersThread.alter();
+		OnlineUsersThread.alter();// modifica fereastra cu userii online
+		trigger();
 	}
 
 	public synchronized static ArrayList<User> getOnlineUsers() {

@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
 import com.entities.Friend;
 import com.entities.User;
 import com.util.HibernateUtil;

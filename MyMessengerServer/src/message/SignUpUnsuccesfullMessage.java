@@ -8,8 +8,8 @@ public class SignUpUnsuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user;
-	private Connection connectionOfSender;
-	private Connection connectionOfReceiver;
+	private transient Connection connectionOfSender;
+	private transient Connection connectionOfReceiver;
 
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;

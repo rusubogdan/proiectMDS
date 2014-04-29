@@ -1,14 +1,14 @@
 package message;
 
 import graphicInterfacesServer.Connection;
-
 import com.entities.User;
 
 public class SignInSuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
 	private User user = null;
-	private Connection connectionOfSender;
+	private transient Connection connectionOfSender;
+	private transient Connection connectionOfReceiver;
 
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;
@@ -26,9 +26,10 @@ public class SignInSuccesfullMessage implements Message {
 		this.connectionOfReceiver = connectionOfReceiver;
 	}
 
-	private Connection connectionOfReceiver;
-
-	public SignInSuccesfullMessage() {
+	public SignInSuccesfullMessage(Connection connectionOfSender,
+			Connection connectionOfReceiver) {
+		this.connectionOfSender = connectionOfSender;
+		this.connectionOfReceiver = connectionOfReceiver;
 
 	}
 
@@ -44,6 +45,5 @@ public class SignInSuccesfullMessage implements Message {
 	public User getUser() {
 		return user;
 	}
-
 
 }

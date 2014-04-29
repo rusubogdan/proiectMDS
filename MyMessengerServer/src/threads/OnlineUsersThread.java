@@ -12,8 +12,10 @@ public class OnlineUsersThread extends Thread {
 	private static boolean isCanceled = false;
 	private static boolean listHasBeenAltered = false;
 	private OnlineUsersWindow onlineUsersWindow;
+	private ServerThread server;
 
-	public OnlineUsersThread() {
+	public OnlineUsersThread(ServerThread serverThread) {
+		
 		onlineUsersWindow = new OnlineUsersWindow();
 		//se si deschide fereastra odata cu constructorul
 		onlineUsers = new ArrayList<User>();
