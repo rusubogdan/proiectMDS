@@ -1,38 +1,14 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
+import graphicInterfaces.AppHandler;
 
-import com.entities.User;
 
 public class SignInMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user = null;
+	private AppHandler appHandler;
 	private String username;
 	private String password;
-	private ChatWindow chatWindow;
-
-	public SignInMessage(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
-
-	public void interactOnServer() {
-		System.out.println("sunt pe server");
-	}
-
-	public void interactOnClient(ChatWindow chatWindow) {
-
-	}
-	
-	public void interactOnClient() {
-
-	}
-	
-
-	public User getUser() {
-		return user;
-	}
 
 	public String getUsername() {
 		return username;
@@ -42,12 +18,22 @@ public class SignInMessage implements Message {
 		return password;
 	}
 
-	public void setChatWindow(ChatWindow chatWindow) {
-		this.chatWindow = chatWindow;
+
+	public SignInMessage(String name, String password) {
+		username = name;
+		this.password = password;
 	}
 
-	public ChatWindow getChatWindow() {
-		return chatWindow;
+	public void interactOnClient() {
 	}
+
+	public AppHandler getAppHandler() {
+		return appHandler;
+	}
+
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
+	}
+
 
 }

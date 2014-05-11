@@ -12,6 +12,7 @@ public class OnlineUsersThread extends Thread {
 	private static boolean isCanceled = false;
 	private static boolean listHasBeenAltered = false;
 	private OnlineUsersWindow onlineUsersWindow;
+	@SuppressWarnings("unused")
 	private ServerThread server;
 
 	public OnlineUsersThread(ServerThread serverThread) {

@@ -1,45 +1,96 @@
 package graphicInterfaces;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import message.ChatMessage;
 
-import message.SignOutMessage;
-
-public class ListOfUsersWindow {
+public class ListOfUsersWindow extends Thread {
 
 	public JFrame frame;
 	private static DefaultListModel<String> listModel = new DefaultListModel<String>();;
 	@SuppressWarnings("rawtypes")
 	private JList list;
-	private ChatWindow chatWindow = null;
+	private AppHandler appHandler;
+	private boolean isClosed = false;
+	private static BlockingQueue<ChatMessage> messages;
+	private ChatMessage message;
+	private static ArrayList<UserChatWindow> usersInChat;
 
-	public void openWindow() {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					
-					System.out.println("in openWindow");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
 	}
 
-	public ListOfUsersWindow(ChatWindow chatWindow) {
-		openWindow();
-		this.chatWindow = chatWindow;
-		initialize();
+	public synchronized static void addToUsers(UserChatWindow userChat) {
+		usersInChat.add(userChat);
+	}
+
+	public synchronized static void removeFromUsers(UserChatWindow userChat) {
+		usersInChat.remove(userChat);
+	} // am sa fac listener la butonul de inchidere
+
+	public ListOfUsersWindow() {
 		System.out.println("in constructorul clasei ListOfUserWindow");
+		messages = new LinkedBlockingQueue<ChatMessage>();
+		usersInChat = new ArrayList<UserChatWindow>();
+		initialize();
+		start();
+	}
+
+	public synchronized void close() {
+		isClosed = true;
+	}
+
+	public void run() {
+
+		boolean finded = false;
+
+		try {
+			while (!isClosed) {
+
+				message = messages.poll(3, TimeUnit.SECONDS);
+
+				frame.setTitle(appHandler.getUsername());
+
+				if (message == null)
+					continue;
+
+				System.out.println(message.getMessage() + "din ListOfUsersThread");
+
+				String sender = message.getUser();
+
+				for (UserChatWindow user : usersInChat) {
+					if (user.getFriend().equals(sender)) {
+						user.setMessage(message.getMessage());
+//						System.out.println("da wa mia intrat aici");
+						finded = true;
+						break;
+					}
+				}
+
+				if (!finded) {
+					UserChatWindow senderUser;
+					addToUsers(senderUser = new UserChatWindow(message.getUser(),
+							appHandler));
+					senderUser.setMessage(message.getMessage());
+
+				}
+
+			}
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public synchronized static void addUsersToList(ArrayList<String> listOfUsers) {
@@ -57,13 +108,9 @@ public class ListOfUsersWindow {
 		}
 	}
 
-	public synchronized void openChatWindow(String friend, ChatWindow chatWindow) {
-		new UserChatWindow(friend, chatWindow);
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized void initialize() {
-		System.out.println("in initialize()");
+		System.out.println("in initialize() din ListOfUsersWindow");
 		frame = new JFrame();
 		frame.setVisible(true);
 		System.out.println("dupa set Visible");
@@ -73,14 +120,17 @@ public class ListOfUsersWindow {
 		frame.setVisible(true);
 
 		JButton button = new JButton("+");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				appHandler.disconnectFromServer();
+			}
+		});
 		button.setBounds(10, 38, 41, 23);
 		frame.getContentPane().add(button);
 
 		JButton btnNewGroup = new JButton("New group");
 		btnNewGroup.setBounds(65, 38, 89, 23);
 		frame.getContentPane().add(btnNewGroup);
-
-		
 
 		list = new JList(listModel);
 		list.addMouseListener(new MouseAdapter() {
@@ -97,8 +147,8 @@ public class ListOfUsersWindow {
 					if (e.getClickCount() == 2) {
 						friend = (String) listOfUsers.get(0);
 						System.out.println("........................." + friend);
-						chatWindow.openConversation(friend, chatWindow);
-						openChatWindow(friend, chatWindow);
+
+						addToUsers(new UserChatWindow(friend, appHandler));
 
 					}
 				}
@@ -112,17 +162,19 @@ public class ListOfUsersWindow {
 		JButton btnSignOut = new JButton("Sign Out");
 		btnSignOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				appHandler.signOut();
 				frame.dispose();
-				
-				SignOutMessage message = new SignOutMessage();
-				message.setName(chatWindow.name);
-				chatWindow.sendMessageToServer(message);
-				
-				chatWindow.disconnectFromServer();
-				ChatWindow.main(null);
 			}
 		});
 		btnSignOut.setBounds(168, 38, 89, 23);
 		frame.getContentPane().add(btnSignOut);
+	}
+
+	public void closeWindow() {
+		frame.dispose();
+	}
+
+	public static synchronized void addMessageToMessageQueue(ChatMessage message) {
+		messages.add(message);
 	}
 }

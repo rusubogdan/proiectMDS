@@ -11,8 +11,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.entities.User;
-
 import message.ListOfFriendsMessage;
 import message.Message;
 
@@ -53,7 +51,9 @@ public class MessageSender extends Thread {
 					message = messagesToSend.poll(5, TimeUnit.SECONDS);
 					if (message == null)
 						continue;
+					
 					ListOfFriendsMessage lst = new ListOfFriendsMessage();
+
 					if (message.getClass().equals(ListOfFriendsMessage.class)) {
 
 						lst = (ListOfFriendsMessage) message;
@@ -63,9 +63,9 @@ public class MessageSender extends Thread {
 
 						ArrayList<String> fr = new ArrayList<String>();
 
-						for (User u : lst.getFriends()) {
-							System.out.print(u.getUsername() + " ");
-							fr.add(u.getUsername());
+						for (String u : lst.getFriendsByName()) {
+							System.out.print(u + " ");
+							fr.add(u);
 
 						}
 						System.out.println();
@@ -73,14 +73,20 @@ public class MessageSender extends Thread {
 						message = lst;
 					}
 					System.out.println("Trimit lui: "
-							+ this.connection.getUser().getUsername() + " un "
+						//	+ this.connection.getUser().getUsername() + " un "
 							+ message.getClass());
+					
+					if (message == null)
+						System.out.println("trimit un mesaj nullllllll");
+					
 					objectOutputStream.writeObject(message);
 					objectOutputStream.flush();
 
 				} catch (InvalidClassException ice) {
 					ice.printStackTrace();
 				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -89,7 +95,7 @@ public class MessageSender extends Thread {
 			e.printStackTrace();
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-		}
+		} 
 	}
 
 }

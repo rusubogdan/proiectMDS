@@ -1,6 +1,7 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
+import graphicInterfaces.AppHandler;
+import graphicInterfaces.ListOfUsersWindow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,8 @@ public class ChatMessage implements Message {
 	private String user;
 	private String message;
 	private ArrayList<String> friends;
-	private ChatWindow chatWindow;
+	@SuppressWarnings("unused")
+	private transient AppHandler appHandler;
 
 	public ChatMessage(String user, String message, ArrayList<String> friends) {
 		this.user = user;
@@ -20,15 +22,8 @@ public class ChatMessage implements Message {
 	}
 
 	public void interactOnClient() {
-		System.out.println(message);
-	}
-
-	public void interactOnServer() {
-
-	}
-
-	public void interactOnClient(ChatWindow chatWindow) {
-
+		System.out.println("La interact on client" + user + " " + message + " " + friends.get(0));
+		ListOfUsersWindow.addMessageToMessageQueue(this);
 	}
 
 	public String getUser() {
@@ -43,11 +38,7 @@ public class ChatMessage implements Message {
 		return friends;
 	}
 
-	public void setChatWindow(ChatWindow chatWindow) {
-		this.chatWindow = chatWindow;
-	}
-
-	public ChatWindow getChatWindow() {
-		return chatWindow;
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
 	}
 }

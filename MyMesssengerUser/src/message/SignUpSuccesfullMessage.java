@@ -1,46 +1,25 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
-
-import com.entities.User;
+import graphicInterfaces.AppHandler;
 
 public class SignUpSuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user = null;
+	private AppHandler appHandler;
 
 	public SignUpSuccesfullMessage() {
 	}
 
-	public void interactOnServer() {
-
-	}
-
 	public void interactOnClient() {
-
+		appHandler.signUpSuccesfully();
 	}
 
-	public void interactOnClient(ChatWindow chatWindow) {
-		System.out.println("SignUp successfull!");
-
-		chatWindow.clearFields();
-
+	public AppHandler getAppHandler() {
+		return appHandler;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
-	@Override
-	public void setChatWindow(ChatWindow chatWindow) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ChatWindow getChatWindow() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
 	}
 
 }

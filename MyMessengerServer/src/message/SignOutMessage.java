@@ -14,10 +14,10 @@ public class SignOutMessage implements Message {
 	private static final long serialVersionUID = 1L;
 	private transient Connection connectionOfSender;
 	private transient Connection connectionOfReceiver;
-	private String name;
+	private String username;
 
 	public String getName() {
-		return this.name;
+		return this.username;
 	}
 	
 	public Connection getConnectionOfSender() {

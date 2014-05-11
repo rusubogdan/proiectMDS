@@ -1,7 +1,6 @@
 package threads;
 
 import graphicInterfacesServer.Connection;
-import graphicInterfacesServer.StartServerWindow;
 import graphicInterfacesServer.MyPair;
 
 import java.io.IOException;
@@ -57,18 +56,28 @@ public class ServerThread extends Thread {
 	private static synchronized void sendFriendsToUsers() {
 		ListOfFriendsMessage message = null;
 		ArrayList<User> list = null;
+		ArrayList<String> listOfUsernames = null;
 		Connection connection = null;
 
 		ArrayList<User> LIST = null;
 		LIST = new ArrayList<>(getOnlineUsers());
-		System.out.println("                                 DA a ajuns");
+
 		for (User user : LIST) {
 			list = new ArrayList<>(getOnlineUsers());
 			connection = getConnectionByUsername(user.getUsername());
 
 			message = new ListOfFriendsMessage();
 			list.remove(user);
-			message.setFriends(list);
+			
+			listOfUsernames = new ArrayList<String>();
+			
+			for(User buddy : list) {
+				listOfUsernames.add(buddy.getUsername());
+			}
+			
+//			message.setFriends(list);
+			message.setFriendsByName(listOfUsernames);
+			
 
 			message.setConnectionOfReceiver(connection);
 
@@ -162,10 +171,11 @@ public class ServerThread extends Thread {
 		connections.add(connection);
 	}
 
+	int serverPort = 9999;
+	Socket clientSocket;
+	Connection connection;
+
 	public void run() {
-		int serverPort = 9999;
-		Socket clientSocket;
-		Connection connection;
 
 		try {
 			if (serverSocket == null)
@@ -174,7 +184,7 @@ public class ServerThread extends Thread {
 
 			while (!isClosed) {
 				clientSocket = serverSocket.accept();
-				connection = new Connection(clientSocket, StartServerWindow.textField);
+				connection = new Connection(clientSocket);
 				ServerThread.addConnection(connection);
 			}
 		} catch (IOException ioe) {

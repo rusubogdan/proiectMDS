@@ -41,6 +41,9 @@ public class ChatMessage implements Message {
 	public void interactOnServer(Connection connectionOfSender,
 			Connection connectionOfReceiver) {
 
+		// aici va fi un for pe friends si voi trimite mesajul catre mai multe
+		// conexiuni
+//		System.out.println("Pe server in interact am: " + user);
 		this.connectionOfReceiver = ServerThread.getConnectionByUsername(friends.get(0));
 		MessageThread.addToQueueMess(this);
 

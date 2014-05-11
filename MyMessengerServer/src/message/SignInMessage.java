@@ -11,8 +11,8 @@ import com.entities.User;
 
 public class SignInMessage implements Message {
 
-	private static final long serialVersionUID = 1L;
-	private User user = null;
+	private transient static final long serialVersionUID = 1L;
+	private transient User user = null;
 	private String username;
 	private transient Connection connectionOfReceiver;
 	private String password;
@@ -69,17 +69,16 @@ public class SignInMessage implements Message {
 
 			Message msg = new SignInSuccesfullMessage(connectionOfReceiver,
 					connectionOfSender);
-			MessageThread.addToQueueMess(msg);
 			
+			MessageThread.addToQueueMess(msg);
+
 			ServerThread.addToOnlineUsersQueue(user);
 			// adaug userul la useri online
-
-			
 
 			System.out.println("\nDin SignIn am trimis catre "
 					+ connectionOfSender.getUser().getUsername() + "un SignInSuccesfull");
 
-			//ServerThread.trigger();
+//			 ServerThread.trigger();
 			// se declanseaza trimiterea la toti userii lista celorlalti useri
 
 		} else {

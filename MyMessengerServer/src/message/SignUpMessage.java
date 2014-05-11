@@ -17,6 +17,7 @@ public class SignUpMessage implements Message {
 	private ManageUsers manager;
 	private transient Connection connectionOfSender;
 	private transient Connection connectionOfReceiver;
+	private MyPair usernameId;
 
 	public Connection getConnectionOfSender() {
 		return connectionOfSender;
@@ -26,7 +27,6 @@ public class SignUpMessage implements Message {
 		 this.connectionOfSender = connectionOfSender;
 	}
 
-	private MyPair usernameId;
 
 	public SignUpMessage(String username, String password,
 			Connection connectionOfSeConnection, Connection connectionOfReceiver) {
@@ -58,6 +58,7 @@ public class SignUpMessage implements Message {
 			msg.setConnectionOfSender(null);
 			msg.setConnectionOfReceiver(connectionOfSender);
 			MessageThread.addToQueueMess(msg);
+			System.out.println("sunt pe cale sa trimit un signUpSuccesfull");
 			// apelez cu receiver / sender pentru ca acu se schimba sensul de
 			// trimitere
 

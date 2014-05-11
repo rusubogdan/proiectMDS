@@ -7,8 +7,10 @@ import com.entities.User;
 public class ListOfFriendsMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
+	
 	private ArrayList<User> friends = null;
 	private ArrayList<String> friendsByName = null;
+	
 	private transient Connection connectionOfSender;
 	private transient Connection connectionOfReceiver;
 
@@ -28,15 +30,8 @@ public class ListOfFriendsMessage implements Message {
 		this.friends = friends;
 	}
 
-	public User getUser() {
-		return null;
-	}
 
 	public void interactOnServer(Connection connection, Connection connection2) {
-
-	}
-
-	public void interactOnClient() {
 
 	}
 

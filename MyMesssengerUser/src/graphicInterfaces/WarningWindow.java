@@ -19,7 +19,7 @@ public class WarningWindow {
 			public void run() {
 				try {
 					WarningWindow window = new WarningWindow(text);
-					window.frame.setVisible(false); 
+					window.frame.setVisible(true); 
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -29,10 +29,11 @@ public class WarningWindow {
 
 	public WarningWindow(String text) {
 		this.text = text;
+		frame = new JFrame();
+		
 	}
 
 	public void initialize() {
-		frame = new JFrame();
 		frame.setBounds(100, 100, 444, 145);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);

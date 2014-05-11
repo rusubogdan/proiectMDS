@@ -1,41 +1,25 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
-import graphicInterfaces.WarningWindow;
-
-import com.entities.User;
+import graphicInterfaces.AppHandler;
 
 public class SignInUnsuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user = null;
-	private ChatWindow chatWindow = null;
+	private AppHandler appHandler;
 
 	public SignInUnsuccesfullMessage() {
 	}
 
-	public void interactOnServer() {
-
-	}
-
 	public void interactOnClient() {
-		WarningWindow.openWarningWindow("Incorrect username or password!");
+		appHandler.signInUnsuccesfully();
 	}
 
-	public void interactOnClient(ChatWindow chatWindow) {
-		//chatWindow.openWarningWindow();
+	public AppHandler getAppHandler() {
+		return appHandler;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
-	public void setChatWindow(ChatWindow chatWindow) {
-		this.chatWindow = chatWindow;
-	}
-
-	public ChatWindow getChatWindow() {
-		return chatWindow;
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
 	}
 
 }

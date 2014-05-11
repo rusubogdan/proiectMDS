@@ -1,58 +1,37 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
-import graphicInterfaces.ManageUsers;
-
-import com.entities.User;
+import graphicInterfaces.AppHandler;
 
 public class SignUpMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user = null;
-	private String username;
+	private AppHandler appHandler;
+	private String name;
 	private String password;
-	private ManageUsers manager;
 
-	public SignUpMessage(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
-
-	public void interactOnClient() {
-
-	}
-
-	public void interactOnServer() {
-		System.out.println("din sign up user");
-		manager = new ManageUsers();
-		manager.addUser(username, password, null, null, null, null, null, null, null);
-	}
-
-	public void interactOnClient(ChatWindow chatWindow) {
-
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public String getUsername() {
-		return username;
+	public String getName() {
+		return name;
 	}
 
 	public String getPassword() {
 		return password;
 	}
 
-	@Override
-	public void setChatWindow(ChatWindow chatWindow) {
-		// TODO Auto-generated method stub
-		
+	public SignUpMessage(String name, String password) {
+		this.name = name;
+		this.password = password;
 	}
 
-	@Override
-	public ChatWindow getChatWindow() {
-		// TODO Auto-generated method stub
-		return null;
+	public void interactOnClient() {
 	}
+
+	public AppHandler getAppHandler() {
+		return appHandler;
+	}
+
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
+	}
+
+
 }

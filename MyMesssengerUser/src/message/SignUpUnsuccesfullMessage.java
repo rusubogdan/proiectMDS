@@ -1,44 +1,25 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
-
-import com.entities.User;
+import graphicInterfaces.AppHandler;
 
 public class SignUpUnsuccesfullMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private User user;
+	private AppHandler appHandler;
 
 	public SignUpUnsuccesfullMessage() {
 	}
 
-	public void interactOnServer() {
-
-	}
-
-	public void interactOnClient(ChatWindow chatWindow) {
-		System.out.println("unsuccesfull on client");
-		chatWindow.clearFields();
-	}
-
 	public void interactOnClient() {
-
+		appHandler.signUpUnsuccesfully();
 	}
 
-	public User getUser() {
-		return user;
+	public AppHandler getAppHandler() {
+		return appHandler;
 	}
 
-	@Override
-	public void setChatWindow(ChatWindow chatWindow) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ChatWindow getChatWindow() {
-		// TODO Auto-generated method stub
-		return null;
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
 	}
 
 }

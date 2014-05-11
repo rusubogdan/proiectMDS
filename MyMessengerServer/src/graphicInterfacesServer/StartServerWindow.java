@@ -6,14 +6,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
 import threads.ServerThread;
 
 public class StartServerWindow {
 
 	private JFrame frame;
-	public static JTextField textField;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {

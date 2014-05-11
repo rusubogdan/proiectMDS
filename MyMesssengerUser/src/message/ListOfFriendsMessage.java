@@ -1,6 +1,6 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
+import graphicInterfaces.AppHandler;
 import graphicInterfaces.ListOfUsersWindow;
 
 import java.util.ArrayList;
@@ -10,9 +10,9 @@ import com.entities.User;
 public class ListOfFriendsMessage implements Message {
 
 	private static final long serialVersionUID = 1L;
-	private ArrayList<User> friends = null;
-	private ChatWindow chatWindow = null;
-	private ArrayList<String> friendsByName = null;
+	private ArrayList<User> friends;
+	private ArrayList<String> friendsByName;
+	private transient AppHandler appHandler;
 
 	public ArrayList<String> getFriendsByName() {
 		return friendsByName;
@@ -26,16 +26,8 @@ public class ListOfFriendsMessage implements Message {
 		return friends;
 	}
 
-	public ListOfFriendsMessage(ChatWindow chatWindow) {
-		this.chatWindow = chatWindow;
-	}
-
 	public void setFriends(ArrayList<User> friends) {
 		this.friends = friends;
-	}
-
-	public User getUser() {
-		return null;
 	}
 
 	public void interactOnServer() {
@@ -46,20 +38,15 @@ public class ListOfFriendsMessage implements Message {
 		System.out.println("Aici sunt in interactOnClient de pe ListOfFriendsMessage");
 
 		ListOfUsersWindow.addUsersToList(friendsByName);
-		
+
 	}
 
-	public void interactOnClient(ChatWindow chatWindow) {
-		ListOfUsersWindow.addUsersToList(friendsByName);
+	public AppHandler getAppHandler() {
+		return appHandler;
 	}
 
-	public void setChatWindow(ChatWindow chatWindow) {
-		this.chatWindow = chatWindow;
-		
-	}
-
-	public ChatWindow getChatWindow() {
-		return chatWindow;
+	public void setAppHandler(AppHandler appHandler) {
+		this.appHandler = appHandler;
 	}
 
 }

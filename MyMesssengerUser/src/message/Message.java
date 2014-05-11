@@ -1,14 +1,13 @@
 package message;
 
-import graphicInterfaces.ChatWindow;
+import graphicInterfaces.AppHandler;
 
 import java.io.Serializable;
 
 public interface Message extends Serializable{
 
 	public void interactOnClient();
-	
-	public void setChatWindow(ChatWindow chatWindow);
-	
-	public ChatWindow getChatWindow() ;
+
+	public void setAppHandler(AppHandler appHandler);
+
 }
