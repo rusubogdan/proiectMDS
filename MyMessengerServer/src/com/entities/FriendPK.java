@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -12,10 +13,10 @@ public class FriendPK implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@JoinColumn(name = "user_id")
-	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
 	private User user;
 
-	@ManyToOne(cascade = CascadeType.ALL, optional = false)
+	@ManyToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "friend_id")
 	private User friend;
 

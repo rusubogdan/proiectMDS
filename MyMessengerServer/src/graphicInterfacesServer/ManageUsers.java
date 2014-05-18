@@ -1,29 +1,45 @@
 package graphicInterfacesServer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+
 import com.entities.Friend;
 import com.entities.User;
-import com.util.HibernateUtil;
 import com.util.TransactionManager;
 
-//am de modificat cu warning-urile de la transaction si cu dead code-ul
-
 @SuppressWarnings("unchecked")
-public class ManageUsers extends Thread {
+public class ManageUsers {
 
-	private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 	private Session session;
 
-	public ManageUsers() {
-
+	public User getUser(String username) {
+		User result = null;
+		try {
+			session = TransactionManager.getCurrentSession();
+			
+			Query query = session.createQuery("from User u where u.username = :username")
+					.setString("username", username);
+			List<User> users = query.list();
+			if (!users.isEmpty()) {
+				result = users.get(0);
+			}
+			
+			TransactionManager.commit();
+		} catch (HibernateException he) {
+			TransactionManager.rollback();
+			he.printStackTrace();
+		}
+		return result;
 	}
 
+	/*
+	 * Intoarce lista completa de useri
+	 */
 	public List<User> getListOfUsers() {
-		session = sessionFactory.openSession();
 		List<User> listOfUsers = null;
 		try {
 			session = TransactionManager.getCurrentSession();
@@ -39,13 +55,19 @@ public class ManageUsers extends Thread {
 		return listOfUsers;
 	}
 
-	public User getUser(long userId) {
-		session = sessionFactory.getCurrentSession();
-		User result = null;
+	public List<String> getFriendsOfUser(String user) {
+		List<Friend> listOfUsers = new ArrayList<>();
+		List<String> list = new ArrayList<>();
+
 		try {
 			session = TransactionManager.getCurrentSession();
 
-			result = (User) session.get(User.class, userId);
+			listOfUsers = session
+					.createQuery("from Friend f where f.friendPK.user.username = :name")
+					.setString("name", user).list();
+
+			for (Friend user1 : listOfUsers)
+				list.add(user1.getFriend().getUsername());
 
 			TransactionManager.commit();
 
@@ -53,80 +75,52 @@ public class ManageUsers extends Thread {
 			TransactionManager.rollback();
 			he.printStackTrace();
 		}
-		return result;
+		return list;
 	}
 
-	public void setAsFriends(User user, User friend) {
-		session = sessionFactory.openSession();
-		try {
-			session = TransactionManager.getCurrentSession();
+	/*
+	 * Seteaza 2 useri ca fiind prieteni
+	 */
+	public void setAsFriends(String username, String friendUsername) {
 
-			Friend newFriend = new Friend(user, friend);
+		if (username != friendUsername) {
+			try {
+				session = TransactionManager.getCurrentSession();
 
-			session.save(newFriend);
+				User user = (User) session
+						.createQuery("from User o where o.username = :username")
+						.setString("username", username).list().get(0);
+				User friend = (User) session
+						.createQuery("from User o where o.username = :username")
+						.setString("username", friendUsername).list().get(0);
 
-			TransactionManager.commit();
+				Friend newFriend = new Friend(user, friend);
+				session.save(newFriend);
 
-		} catch (HibernateException he) {
-			TransactionManager.rollback();
-			he.printStackTrace();
+				Friend newFriend1 = new Friend(friend, user);
+				session.save(newFriend1);
+
+				TransactionManager.commit();
+
+			} catch (HibernateException he) {
+				TransactionManager.rollback();
+				System.out.println("EROARE HIBERNATE");
+				he.printStackTrace();
+			} catch (IndexOutOfBoundsException e) {
+				System.out.println("NU A FOST ADAUGAT LA PRIETENI");
+			}
 		}
 	}
 
-	public void setAsFriends(long userId, long friendId) {
-		session = sessionFactory.openSession();
-		try {
-			session = TransactionManager.getCurrentSession();
-
-			User user = (User) session.load(User.class, userId);
-			User friend = (User) session.load(User.class, friendId);
-
-			Friend newFriend = new Friend(user, friend);
-
-			session.save(newFriend);
-
-			TransactionManager.commit();
-
-		} catch (HibernateException he) {
-			TransactionManager.rollback();
-			he.printStackTrace();
-		}
-	}
-
+	/*
+	 * Adauga un user nou in baza de date
+	 */
 	public long addUser(User user) {
 
-		session = sessionFactory.openSession();
 		long id = 0;
-		System.out.println("e in addUser");
 		try {
 			session = TransactionManager.getCurrentSession();
 
-			id = (Long) session.save(user);
-
-			TransactionManager.commit();
-			System.out.println("a dat commit");
-
-		} catch (HibernateException he) {
-			TransactionManager.rollback();
-			he.printStackTrace();
-		}
-
-		return id;
-
-	}
-
-	public long addUser(String username, String password, String firstName,
-			String middleName, String lastName, String mobileNumber,
-			String homePhoneNumber, String address, String joinDate) {
-
-		session = sessionFactory.openSession();
-		long id = 0;
-
-		try {
-			session = TransactionManager.getCurrentSession();
-
-			User user = new User(username, password, firstName, middleName, lastName,
-					mobileNumber, homePhoneNumber, address, joinDate);
 			id = (Long) session.save(user);
 
 			TransactionManager.commit();
@@ -140,9 +134,10 @@ public class ManageUsers extends Thread {
 
 	}
 
+	/*
+	 * Modifica datele unui user
+	 */
 	public void updateUser(User user) {
-
-		session = sessionFactory.openSession();
 
 		try {
 			session = TransactionManager.getCurrentSession();
@@ -156,9 +151,11 @@ public class ManageUsers extends Thread {
 
 	}
 
-	public void deleteUser(Long id) {
-		session = sessionFactory.openSession();
+	/*
+	 * Sterge un user din baza de date
+	 */
 
+	public void deleteUser(Long id) {
 		try {
 			session = TransactionManager.getCurrentSession();
 

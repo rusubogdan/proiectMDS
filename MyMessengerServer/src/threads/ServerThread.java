@@ -1,130 +1,51 @@
 package threads;
 
 import graphicInterfacesServer.Connection;
-import graphicInterfacesServer.MyPair;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.net.SocketTimeoutException;
+import java.util.HashSet;
+import java.util.Set;
 
-import message.ListOfFriendsMessage;
-import message.Message;
 import message.ServerHasBeenClosedMessage;
 
-import com.entities.User;
-
-/*	Ar trebui ca de fiecare data cand pornesc threadul ServerThread sa iau 
- * 	din baza de date o lista de perechi cu username si id 
- *  De asemenea sa actualizez de fiecare data o lista cu userii online
- * 
- */
 public class ServerThread extends Thread {
 
 	private static boolean isClosed = false;
-	private static ArrayList<Connection> connections = new ArrayList<>();
-	private static ArrayList<MyPair> userIds = new ArrayList<MyPair>();
-	private static ArrayList<User> onlineUsers = new ArrayList<User>();
-	private ServerSocket serverSocket;
-	private MessageThread messageThread;
-	private OnlineUsersThread onlineUsersThread;
+	private static Set<Connection> connections = new HashSet<>();
+	private static Set<String> onlineUsers = new HashSet<>();
 
-	public static synchronized void addUserId(MyPair usernameId) {
-		userIds.add(usernameId);
-	}// ?????????????????????
+	private ServerSocket serverSocket;
+	private OnlineUsersThread onlineUsersThread;
+	private int serverPort = 9999;
+
+	public static synchronized boolean userOnline(String username) {
+
+		for (String user : getOnlineUsers()) {
+			if (user.equals(username)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public ServerThread() {
 		isClosed = false;
 		if (onlineUsersThread == null)
 			onlineUsersThread = new OnlineUsersThread(this);
-		// odata cu instantierea se deschide si fereastra pentru useri online
-		if (messageThread == null)
-			messageThread = new MessageThread();
 		this.start();
-	}
-
-	public static synchronized void trigger() {
-		System.out.println("In trigger din serverThread");
-
-		sendFriendsToUsers();
-	}
-
-	public static synchronized ArrayList<Connection> getConnections() {
-		return connections;
-	}
-
-	private static synchronized void sendFriendsToUsers() {
-		ListOfFriendsMessage message = null;
-		ArrayList<User> list = null;
-		ArrayList<String> listOfUsernames = null;
-		Connection connection = null;
-
-		ArrayList<User> LIST = null;
-		LIST = new ArrayList<>(getOnlineUsers());
-
-		for (User user : LIST) {
-			list = new ArrayList<>(getOnlineUsers());
-			connection = getConnectionByUsername(user.getUsername());
-
-			message = new ListOfFriendsMessage();
-			list.remove(user);
-			
-			listOfUsernames = new ArrayList<String>();
-			
-			for(User buddy : list) {
-				listOfUsernames.add(buddy.getUsername());
-			}
-			
-//			message.setFriends(list);
-			message.setFriendsByName(listOfUsernames);
-			
-
-			message.setConnectionOfReceiver(connection);
-
-			MessageThread.addToQueueMess(message);
-
-			message = null;
-		}
-
 	}
 
 	public synchronized static Connection getConnectionByUsername(String username) {
 
 		for (Connection connection : connections) {
-			if (connection.getUser().getUsername().equals(username)) {
+			if (connection.getUsername().equals(username)) {
 				return connection;
 			}
 		}
 		return null;
-	}
-
-	public synchronized static void addMessageToMessageSender(Message message) {
-		message.getConnectionOfSender().addToQueueConnection(message);
-	}
-
-	public synchronized static boolean isTakken(String username) {
-		if (userIds.size() == 0)
-			return false;
-		for (MyPair pair : userIds)
-			if (pair.getUsername().equals(username))
-				return true;
-		return false;
-	}
-
-	public static synchronized String getUserFromUserIds(User user) {
-		for (MyPair userAndId : userIds) {
-			if (userAndId.getUsername().equals(user))
-				return userAndId.getUsername();
-		}
-		return null;
-	}
-
-	public synchronized static long getIdFromUserIds(long userId) {
-		for (MyPair userAndId : userIds) {
-			if (userAndId.getUserId() == userId)
-				return userAndId.getUserId();
-		}
-		return 0;
 	}
 
 	public synchronized static void removeConnection(Connection connection) {
@@ -132,6 +53,13 @@ public class ServerThread extends Thread {
 			for (Connection connection2 : connections) {
 				connection2.cancel();
 			}
+
+			try {
+				sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 		} else
 			connections.remove(connection);
 
@@ -139,31 +67,34 @@ public class ServerThread extends Thread {
 
 	public synchronized static void removeConnectionByUsername(String username) {
 		for (Connection connection : connections) {
-			if (connection.getUser().getUsername().equals(username)) {
+			if (connection.getUsername().equals(username)) {
 				connections.remove(connection);
 				break;
 			}
 		}
 	}
 
-	private static synchronized void cancel() {
+	private static synchronized void cancelAllTheConnections() {
 		for (Connection connection : connections) {
 			connection.cancel();
 		}
 	}
 
-	public static synchronized void close() {
-		isClosed = true;
+	/*
+	 * Trimite un mesaj specific userilor: ServerHasBennClosedMessage
+	 */
+	public static synchronized void alertUsers() {
 		ServerHasBeenClosedMessage message = new ServerHasBeenClosedMessage();
-		message.setConnectionOfReceiver(null);
-		message.setConnectionOfSender(null);
-		addMessageToMessageSender(message);
-		try {
-			sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+
+		for (Connection connection : connections) {
+			connection.addToQueueConnection(message);
 		}
-		cancel();
+	}
+
+	public static synchronized void closeServerThread() {
+		cancelAllTheConnections();
+
+		isClosed = true;
 
 	}
 
@@ -171,56 +102,55 @@ public class ServerThread extends Thread {
 		connections.add(connection);
 	}
 
-	int serverPort = 9999;
-	Socket clientSocket;
-	Connection connection;
-
 	public void run() {
 
 		try {
-			if (serverSocket == null)
+			if (serverSocket == null) {
 				serverSocket = new ServerSocket(serverPort);
-			System.out.println("Server is ready!");
+				serverSocket.setSoTimeout(5000);
+			}
+			Connection connection;
+			Socket clientSocket;
 
 			while (!isClosed) {
-				clientSocket = serverSocket.accept();
-				connection = new Connection(clientSocket);
-				ServerThread.addConnection(connection);
+				try {
+					clientSocket = serverSocket.accept();
+					connection = new Connection(clientSocket);
+					ServerThread.addConnection(connection);
+					connection.start();
+				} catch (SocketTimeoutException ste) {/* secunde. nothing happened */
+				}
 			}
+
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		} catch (IllegalArgumentException iae) {
 			iae.printStackTrace();
+		} finally {
+			try {
+				if (serverSocket != null) {
+					serverSocket.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		messageThread.cancel();
 
 	}
 
-	public synchronized static void addToOnlineUsersQueue(User user) {
-		System.out.println("add to online users  server thread");
-		onlineUsers.add(user);
+	public synchronized static void addToOnlineUsers(String username) {
+		onlineUsers.add(username);
 		OnlineUsersThread.alter();// modifica fereastra cu userii online
-		trigger();
 	}
 
-	public synchronized static void removeFromOnlineUsersQueue(User user) {
-		System.out.println("din remove in server thread!!!");
-		onlineUsers.remove(user);
+	public synchronized static void removeFromOnlineUsers(String username) {
+		System.out.println("Am eliminat din userii online: " + username);
+		onlineUsers.remove(username);
 		OnlineUsersThread.alter();// modifica fereastra cu userii online
-		trigger();
 	}
 
-	public synchronized static ArrayList<User> getOnlineUsers() {
+	public synchronized static Set<String> getOnlineUsers() {
 		return onlineUsers;
 	}
 
-	public synchronized static boolean isOnline(String username) {
-		for (User user : onlineUsers) {
-			if (user.getUsername().equals(username)) {
-				return true;
-			}
-
-		}
-		return false;
-	}
 }

@@ -2,11 +2,16 @@ package graphicInterfaces;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import message.ChatMessage;
@@ -14,11 +19,14 @@ import message.ChatMessage;
 public class UserChatWindow {
 
 	private JFrame frmConversation;
-	private JTextField messageToSend;
-	private JTextField conversationHistory;
 	private String friend;
 	private AppHandler appHandler;
 	private ChatMessage chatMessage;
+	private JScrollPane scrollPane;
+	private JTextArea textArea;
+	private JTextField messageToSend;
+	private JScrollPane scrollPaneSender;
+	private UserChatWindow thatsMe;
 
 	public String getFriend() {
 		return friend;
@@ -28,6 +36,7 @@ public class UserChatWindow {
 		System.out.println("new userChatWindow");
 		this.appHandler = appHandler;
 		this.friend = friend;
+		this.thatsMe = this;
 		initialize();
 	}
 
@@ -40,31 +49,40 @@ public class UserChatWindow {
 		frmConversation.setTitle(friend);
 		frmConversation.setBounds(100, 100, 450, 300);
 		frmConversation.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frmConversation.getContentPane().setLayout(null);
 		frmConversation.setLocationRelativeTo(frmConversation);
 
-		JButton btnNewButton = new JButton("Send");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton sendButton = new JButton("Send");
+
+		sendButton.setBounds(237, 185, 68, 59);
+
+		frmConversation.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+
+				ListOfUsersWindow.removeFromUsers(thatsMe);
+
+				e.getWindow().dispose();
+			}
+		});
+
+		sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				String user = new String();
 				String msgToSend = new String();
-				ArrayList<String> friends = new ArrayList<String>();
 
 				msgToSend = messageToSend.getText();
 
 				if (!msgToSend.equals("")) {
 					user = appHandler.getUsername();
-					friends.add(friend);
-					
-					chatMessage = new ChatMessage(user, msgToSend, friends);
+
+					chatMessage = new ChatMessage(user, msgToSend, friend);
 					appHandler.addMessageToQueue(chatMessage);
 
-					synchronized (conversationHistory) {
-						String aux = conversationHistory.getText();
-//						conversationHistory.setText("");
-//						aux = aux + "\n !" + msgToSend;
-						conversationHistory.setText(aux + "\n" + msgToSend);
+					synchronized (textArea) {
+						String aux = textArea.getText();
+						textArea.setText("");
+						textArea.setText(aux + "\n" + msgToSend);
 						messageToSend.setText("");
 					}
 
@@ -72,19 +90,9 @@ public class UserChatWindow {
 
 			}
 		});
-		btnNewButton.setBounds(237, 185, 68, 59);
-		frmConversation.getContentPane().add(btnNewButton);
 
-		messageToSend = new JTextField();
-		messageToSend.setBounds(10, 178, 217, 73);
-		frmConversation.getContentPane().add(messageToSend);
-		messageToSend.setColumns(10);
-
-		conversationHistory = new JTextField();
-		conversationHistory.setEditable(false);
-		conversationHistory.setBounds(10, 11, 295, 156);
-		frmConversation.getContentPane().add(conversationHistory);
-		conversationHistory.setColumns(10);
+		frmConversation.getContentPane().setLayout(null);
+		frmConversation.getContentPane().add(sendButton);
 
 		JLabel lblNewLabel = new JLabel("New label");
 		lblNewLabel.setBounds(329, 11, 95, 95);
@@ -94,18 +102,89 @@ public class UserChatWindow {
 		lblNewLabel_1.setBounds(329, 149, 95, 95);
 		frmConversation.getContentPane().add(lblNewLabel_1);
 
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 11, 293, 152);
+		frmConversation.getContentPane().add(scrollPane);
+
+		textArea = new JTextArea();
+		textArea.setEditable(false);
+		scrollPane.setViewportView(textArea);
+
+		scrollPaneSender = new JScrollPane();
+		scrollPaneSender.setBounds(10, 185, 223, 66);
+		frmConversation.getContentPane().add(scrollPaneSender);
+
+		messageToSend = new JTextField();
+		scrollPaneSender.setViewportView(messageToSend);
+		messageToSend.setColumns(10);
+
 		frmConversation.setVisible(true);
+
+		scrollPaneSender.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.out.println("in enter din scrollPane");
+					e.consume();
+					String user = new String();
+					String msgToSend = new String();
+
+					msgToSend = messageToSend.getText();
+
+					if (!msgToSend.equals("")) {
+						user = appHandler.getUsername();
+
+						chatMessage = new ChatMessage(user, msgToSend, friend);
+						appHandler.addMessageToQueue(chatMessage);
+
+						synchronized (textArea) {
+							String aux = textArea.getText();
+							textArea.setText("");
+							textArea.setText(aux + "\n" + msgToSend);
+							messageToSend.setText("");
+						}
+
+					}
+				}
+			}
+		});
+
+		messageToSend.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					e.consume();
+					String user = new String();
+					String msgToSend = new String();
+
+					msgToSend = messageToSend.getText();
+
+					if (!msgToSend.equals("")) {
+						user = appHandler.getUsername();
+
+						chatMessage = new ChatMessage(user, msgToSend, friend);
+						appHandler.addMessageToQueue(chatMessage);
+
+						synchronized (textArea) {
+							String aux = textArea.getText();
+							textArea.setText("");
+							textArea.setText(aux + "\n" + msgToSend);
+							messageToSend.setText("");
+						}
+
+					}
+				}
+			}
+		});
+		
 	}
 
 	public synchronized void setMessage(String message) {
-		//mesajul primit vreau sa fie in partea staga iar cel dat in partea dreapta...
-		//sau la mesaj concatenez numele userului ce a trimis mesajul
-		System.out.println("sunt in setMessage user chat window");
-		String aux = conversationHistory.getText();
-		conversationHistory.setText("");
-		aux = aux + "\n !\n" + message;
-		conversationHistory.setText(aux);
+		String aux = textArea.getText();
+		textArea.setText("");
+		aux = aux + "\n" + message;
+		textArea.setText(aux);
 		messageToSend.setText("");
 	}
-
 }

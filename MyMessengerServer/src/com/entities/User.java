@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -52,21 +53,19 @@ public class User implements Serializable{
 	@Column(name = "JOIN_DATE")
 	private String joinDate;
 
-	// e mai simplu sa folosesc mappedBy decat cu join table :)
-//	@ManyToMany(fetch = FetchType.EAGER, mappedBy = "friendOf")
-	// @JoinTable(name = "BUDDIES", joinColumns = @JoinColumn(name =
-	// "BUSER_ID"), inverseJoinColumns = @JoinColumn(name = "BUDDY_ID"))
-//	private Set<User> friends;
-
-//	@ManyToMany(fetch = FetchType.EAGER)
-//	@JoinTable(name = "BUDDIES", joinColumns = @JoinColumn(name = "BUDDY_ID"), inverseJoinColumns = @JoinColumn(name = "BUSER_ID"))
-//	private Set<User> friendOf;
-	
-	@OneToMany(mappedBy = "friendPK.user", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "friendPK.user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	public Set<Friend> friends;
+	
+	public Set<Friend> getFriends() {
+		return friends;
+	}
 
-	@OneToMany(mappedBy = "friendPK.friend", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "friendPK.friend", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	public Set<Friend> friendOf;
+	
+	public Set<Friend> getFriendsOf() {
+		return friendOf;
+	}
 	
 	public User() {
 	}
@@ -96,22 +95,6 @@ public class User implements Serializable{
 		joinDate = jDate;
 	}
 
-//	public Set<User> getFriends() {
-//		return friends;
-/*	}
-
-	public void setFriends(Set<User> friends) {
-		this.friends = friends;
-	}
-
-	public Set<User> getFriendOf() {
-		return friendOf;
-	}
-
-	public void setFriendOf(Set<User> friendOf) {
-		this.friendOf = friendOf;
-	}
-*/
 	public String getHomePhoneNumber() {
 		return homePhoneNumber;
 	}

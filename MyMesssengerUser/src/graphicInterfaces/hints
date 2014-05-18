@@ -1,15 +1,10 @@
-!!!foarte important : pe o sesiune a serverului nu ma pot loga de mai multe ori cu acelasi user :(
-
-
-din lista de useri la deconectare ( sign out ) pornesc un nod thread AppHandler
-
-
 exceptie cand dau sign out !!!
-
-
-din chatWindow listener la butonul de inchidere sa dau remove din lista de useri din ListOfUsers!!!!!!!!!!
-
 
 la deschiderea unui convorbiri cu un user sa imi ia si istoricul
 
-convorbiri cu areaField
+eroare la sign in fara succes ??
+
+cand inchid serverul sa dau sign out la toti clientii
+	- o eroare de port folosit !!!
+
+add friend - send request ....

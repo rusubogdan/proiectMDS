@@ -3,10 +3,8 @@ package graphicInterfacesServer;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
-
 import threads.ServerThread;
 
 public class StartServerWindow {
@@ -27,12 +25,12 @@ public class StartServerWindow {
 	}
 
 	public static void stopTheServer() {
-		System.exit(0); 
+		System.exit(0);
 	}
-	
+
 	public StartServerWindow() {
 		initialize();
-		
+
 	}
 
 	private void initialize() {
@@ -43,7 +41,7 @@ public class StartServerWindow {
 
 		JButton buttonStartServer = new JButton("StartServer");
 		buttonStartServer.addActionListener(new ActionListener() {
-
+		
 			@SuppressWarnings("unused")
 			private ServerThread server = null;
 

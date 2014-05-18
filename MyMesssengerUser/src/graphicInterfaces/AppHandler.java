@@ -67,8 +67,9 @@ public class AppHandler extends Thread {
 			System.out.println("AppHandler is online and ready to send messages");
 
 			messagesReceiver = new MessagesReceiver(objectInputStream, this);
+			
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Server offline!");
 		}
 		
 		online = true;
@@ -97,7 +98,7 @@ public class AppHandler extends Thread {
 				objectOutputStream.writeObject(message);
 				objectOutputStream.flush();
 
-				System.out.println("Am trimis :" + message.getClass());
+				System.out.println("Am trimis :" + message.getClass().getName());
 
 			}
 
@@ -150,10 +151,19 @@ public class AppHandler extends Thread {
 	// la signOut se apeleaza din ListOfUsersWindow
 	public void disconnectFromServer() {
 		
-		listOfUsersWindow.closeWindow();
+//		listOfUsersWindow.closeWindow();
 		
 		try {
-			System.out.println("DISCONNECT FROM SERVER!");
+			System.out.println("DISCONNECTING FROM SERVER...!");
+			
+			try {
+				sleep(2000);
+			} catch( InterruptedException ie) {
+				ie.printStackTrace();
+			}
+			
+			System.out.println("DISCONNECTED FROM SERVER!");
+			
 			messagesReceiver.cancel();
 			objectOutputStream.close();
 			socket.close();
@@ -171,7 +181,9 @@ public class AppHandler extends Thread {
 
 	public void signOut() {
 		
-		SignOutMessage msg = new SignOutMessage(nameOfUser);
+		SignOutMessage msg = new SignOutMessage();
+		msg.setUser(nameOfUser);
+		
 		addMessageToQueue(msg);
 		
 		disconnectFromServer();

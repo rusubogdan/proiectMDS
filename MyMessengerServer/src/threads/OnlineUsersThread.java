@@ -2,13 +2,12 @@ package threads;
 
 import graphicInterfacesServer.OnlineUsersWindow;
 
-import java.util.ArrayList;
-
-import com.entities.User;
+import java.util.HashSet;
+import java.util.Set;
 
 public class OnlineUsersThread extends Thread {
 
-	private ArrayList<User> onlineUsers;
+	private Set<String> onlineUsers;
 	private static boolean isCanceled = false;
 	private static boolean listHasBeenAltered = false;
 	private OnlineUsersWindow onlineUsersWindow;
@@ -19,13 +18,12 @@ public class OnlineUsersThread extends Thread {
 		
 		onlineUsersWindow = new OnlineUsersWindow();
 		//se si deschide fereastra odata cu constructorul
-		onlineUsers = new ArrayList<User>();
+		onlineUsers = new HashSet<>();
 		this.start();
 
 	}
 
 	public static synchronized void alter() {
-		System.out.println("altering....");
 		listHasBeenAltered = true;
 	}
 	

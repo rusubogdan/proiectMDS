@@ -3,8 +3,10 @@ package graphicInterfacesServer;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -15,8 +17,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import threads.ServerThread;
-
-import com.entities.User;
 
 public class OnlineUsersWindow  {
 
@@ -40,10 +40,10 @@ public class OnlineUsersWindow  {
 	}
 
 
-	public synchronized void showOnlineUsersList(ArrayList<User> onlineUsers) {
+	public synchronized void showOnlineUsersList(Set<String> onlineUsers) {
 		listModel.clear();
-		for(User user : onlineUsers) {
-			listModel.addElement(user.getUsername());
+		for(String user : onlineUsers) {
+			listModel.addElement(user);
 		}
 	}
 
@@ -52,7 +52,6 @@ public class OnlineUsersWindow  {
 	}
 
 	private synchronized void closeFrame() {
-		System.out.println("a intrat in close");
 		frame.setVisible(false);
 		frame.dispose();
 	}
@@ -86,9 +85,16 @@ public class OnlineUsersWindow  {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				ServerThread.alertUsers();
+				ServerThread.closeServerThread();
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
 				frame.dispose();
-				ServerThread.removeConnection(null); 
-				StartServerWindow.stopTheServer(); 
+				StartServerWindow.main(null);
+				
 			}
 		});
 		btnNewButton.setBounds(252, 212, 172, 113);
@@ -99,7 +105,8 @@ public class OnlineUsersWindow  {
 		textField.setBounds(252, 87, 172, 20);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
-		textField.setText(new Date().toString());
+		DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+		textField.setText(dateFormat.format(new Date()));
 		
 		txtDate = new JTextField();
 		txtDate.setEditable(false);

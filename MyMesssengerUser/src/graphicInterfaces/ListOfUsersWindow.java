@@ -5,13 +5,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+
+import message.AddFriendMessage;
 import message.ChatMessage;
 
 public class ListOfUsersWindow extends Thread {
@@ -31,12 +35,14 @@ public class ListOfUsersWindow extends Thread {
 	}
 
 	public synchronized static void addToUsers(UserChatWindow userChat) {
-		usersInChat.add(userChat);
+		boolean b = usersInChat.add(userChat);
+		System.out.println(b + "add");
 	}
 
 	public synchronized static void removeFromUsers(UserChatWindow userChat) {
-		usersInChat.remove(userChat);
-	} // am sa fac listener la butonul de inchidere
+		boolean b = usersInChat.remove(userChat);
+		System.out.println(b + "remove");
+	}
 
 	public ListOfUsersWindow() {
 		System.out.println("in constructorul clasei ListOfUserWindow");
@@ -64,14 +70,15 @@ public class ListOfUsersWindow extends Thread {
 				if (message == null)
 					continue;
 
-				System.out.println(message.getMessage() + "din ListOfUsersThread");
-
 				String sender = message.getUser();
+				
+				finded = false;
 
 				for (UserChatWindow user : usersInChat) {
+					System.out.println("IN FOR ININTE DE IF");
 					if (user.getFriend().equals(sender)) {
-						user.setMessage(message.getMessage());
-//						System.out.println("da wa mia intrat aici");
+						System.out.println("IN FOR DUPA IF");
+						user.setMessage(message.getUser() + ": " + message.getMessage());
 						finded = true;
 						break;
 					}
@@ -79,9 +86,9 @@ public class ListOfUsersWindow extends Thread {
 
 				if (!finded) {
 					UserChatWindow senderUser;
-					addToUsers(senderUser = new UserChatWindow(message.getUser(),
-							appHandler));
-					senderUser.setMessage(message.getMessage());
+					senderUser = new UserChatWindow(sender, appHandler);
+					addToUsers(senderUser);
+					senderUser.setMessage(sender + ": " + message.getMessage());
 
 				}
 
@@ -93,7 +100,7 @@ public class ListOfUsersWindow extends Thread {
 
 	}
 
-	public synchronized static void addUsersToList(ArrayList<String> listOfUsers) {
+	public synchronized static void addUsersToList(List<String> listOfUsers) {
 		System.out.println("adaugare useri la lista in listOfUsersWindow");
 
 		for (String name : listOfUsers) {
@@ -122,7 +129,9 @@ public class ListOfUsersWindow extends Thread {
 		JButton button = new JButton("+");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				appHandler.disconnectFromServer();
+				AddFriendMessage addFriend = new AddFriendMessage(appHandler
+						.getUsername(), "mihai");
+				appHandler.addMessageToQueue(addFriend);
 			}
 		});
 		button.setBounds(10, 38, 41, 23);
@@ -164,6 +173,7 @@ public class ListOfUsersWindow extends Thread {
 			public void actionPerformed(ActionEvent e) {
 				appHandler.signOut();
 				frame.dispose();
+
 			}
 		});
 		btnSignOut.setBounds(168, 38, 89, 23);

@@ -13,6 +13,8 @@ import javax.swing.JTextField;
 import message.Message;
 import message.SignInMessage;
 import message.SignUpMessage;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class AppMainWindow {
 
@@ -38,7 +40,7 @@ public class AppMainWindow {
 			}
 		});
 	}
-	
+
 	public static synchronized void closeWindow() {
 		frame.dispose();
 	}
@@ -55,28 +57,28 @@ public class AppMainWindow {
 
 	private AppMainWindow() {
 		initialize();
-//		run();
+		// run();
 	}
-	
-//	public void run() {
-//		
-//		while(!isClosed) {
-//			try {
-//				sleep(1000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-//	}
+
+	// public void run() {
+	//
+	// while(!isClosed) {
+	// try {
+	// sleep(1000);
+	// } catch (InterruptedException e) {
+	// e.printStackTrace();
+	// }
+	// }
+	//
+	// }
 
 	public static void setAppHandler(AppHandler handler) {
 		appHandler = handler;
 	}
 
-
 	private synchronized void initialize() {
 		frame = new JFrame();
+
 		frame.getContentPane().setBackground(Color.LIGHT_GRAY);
 		frame.setBounds(100, 100, 257, 358);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,6 +101,34 @@ public class AppMainWindow {
 
 		frame.setVisible(true);
 
+		passwordTF.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					String username = new String(), password = new String();
+					username = usernameTF.getText();
+					password = passwordTF.getText();
+
+					if (username.equals("")) {
+						new WarningWindows("Username field is empty!");
+					} else {
+						if (password.equals("")) {
+							new WarningWindows("Password field is empty!");
+						} else {
+
+							appHandler.connectToServer();
+
+							Message signInMessage = new SignInMessage(username, password);
+							appHandler.setNameOfUser(username);
+
+							appHandler.addMessageToQueue(signInMessage);
+
+						}
+					}
+				}
+			}
+		});
+
 		JButton btnSignUp = new JButton("Sign Up");
 		btnSignUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -118,10 +148,9 @@ public class AppMainWindow {
 					} else {
 
 						appHandler.connectToServer();
-						
+
 						Message signUpMessage = new SignUpMessage(username, password);
 						appHandler.addMessageToQueue(signUpMessage);
-
 
 					}
 				}
@@ -146,7 +175,7 @@ public class AppMainWindow {
 					} else {
 
 						appHandler.connectToServer();
-						
+
 						Message signInMessage = new SignInMessage(username, password);
 						appHandler.setNameOfUser(username);
 

@@ -1,5 +1,7 @@
 package graphicInterfacesServer;
 
+import handlers.MessageHandler;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InvalidClassException;
@@ -8,107 +10,83 @@ import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 import message.Message;
 import threads.MessageSender;
 import threads.ServerThread;
 
-import com.entities.User;
-
 public class Connection extends Thread implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Socket clientSocket;
-	private ObjectInputStream inputStream;
-	private Message messageObject;
 	private boolean isCanceled = false;
-	private User user = null;
+	private String username = null;
 	private MessageSender messageSender;
-	private Object object;
 
 	public synchronized void cancel() {
 		isCanceled = true;
 	}
 
-	public synchronized boolean connectionClosed() {
-		return isCanceled;
+	public synchronized String getUsername() {
+		return username;
 	}
 
-	public synchronized Socket getSocket() {
-		return clientSocket;
-	}
-
-	public synchronized User getUser() {
-		return user;
-	}
-
-	// daca user-ul e null inseamna ca nu s-a definitivat conexiunea cu un user
-	// ex: inca nu s-a logat
-
-	synchronized public void setUser(User user) {
-		this.user = user;
+	synchronized public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public Connection(Socket client) {
-
 		this.clientSocket = client;
-		messageSender = new MessageSender(clientSocket, this);
-
-		this.start();
+		messageSender = new MessageSender(clientSocket);
+		messageSender.start();
 	}
 
 	public void run() {
 		try {
-			inputStream = new ObjectInputStream(clientSocket.getInputStream());
+			clientSocket.setSoTimeout(5000);
+			ObjectInputStream inputStream = new ObjectInputStream(
+					clientSocket.getInputStream());
 
-			try {
+			Object object;
+			Message messageObject;
 
-				while (!isCanceled) {
+			while (!isCanceled) {
 
-					object = null;
+				object = null;
+				try {
 					object = inputStream.readObject();
-
-					System.out.println(("Am citit un : " + object.getClass()));
-
-					messageObject = (Message) object;
-					messageObject.setConnectionOfSender(this);
-					messageObject.setConnectionOfReceiver(null);
-					messageObject.interactOnServer(this, null);
-					// !!! sa ii schimb la interact simplu fara parametri
-
+				} catch (SocketTimeoutException ste) {
+					continue;
 				}
-			} catch (EOFException eofe) {
-				System.out.println("eof  connection!");
-			} catch (SocketException se) {
-				System.out.println("socketException!");
-				ServerThread.removeFromOnlineUsersQueue(user);
-			} catch (ClassNotFoundException e) {
-				System.out.println("clnfexception connection");
-
-			} catch (InvalidClassException ice) {
-				System.out.println("ice connection");
-
-			} catch (StreamCorruptedException sce) {
-				System.out.println("sce connection");
-
-			} catch (IOException e) {
-				System.out.println("ioexception connection");
-			} finally {
-//				if (user != null)
-//					ServerThread.removeFromOnlineUsersQueue(user);
 				
+				messageObject = (Message) object;
+				MessageHandler.handleMessage(messageObject, this);
 			}
 
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			System.out.println("conexiunea a fost inchisa ; user-ul s-a deconectat");
+		} catch (EOFException eofe) {
+			System.out.println("eof  connection!");
+		} catch (SocketException se) {
+			System.out.println("socketException!");
+		} catch (ClassNotFoundException e) {
+			System.out.println("clnfexception connection");
+		} catch (InvalidClassException ice) {
+			System.out.println("ice connection");
+		} catch (StreamCorruptedException sce) {
+			System.out.println("sce connection");
+		} catch (IOException e) {
+			System.out.println("ioexception connection");
 		} catch (NullPointerException npe) {
-			npe.printStackTrace();
 			System.out.println("socketul este NULL");
 		} finally {
 			System.out.println("...........................................");
-			// aici eliberez resursele folosite
-//			ServerThread.removeConnection(this);
-//			messageSender.cancel(); 
+			ServerThread.removeFromOnlineUsers(username);
+			ServerThread.removeConnection(this);
+			this.messageSender.cancel();
+			try {
+				clientSocket.getInputStream().close();
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
 		}
 
 	}
