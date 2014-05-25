@@ -19,7 +19,7 @@ public class AddFriendUnsuccessfulMessageHandler implements IMessageHandler {
 					+ message.getClass().getName());
 		}
 		
-		AddFriendUnsuccessfulMessage addFriendUnsuccessfulMessage = (AddFriendUnsuccessfulMessage)message;
+		appHandler.addFriendUnuccesfully();
 		
 	}
 

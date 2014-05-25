@@ -7,6 +7,7 @@ import message.Message;
 
 public class ChatMessageHandler implements IMessageHandler {
 
+	@SuppressWarnings("unused")
 	private AppHandler appHandler;
 
 	public ChatMessageHandler(AppHandler appHandler) {

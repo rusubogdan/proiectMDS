@@ -2,6 +2,7 @@ package handlers;
 
 import graphicInterfaces.AppHandler;
 import message.Message;
+import message.SignUpSuccesfullMessage;
 
 public class SignUpSuccesfullMessageHandler implements IMessageHandler {
 
@@ -13,7 +14,12 @@ public class SignUpSuccesfullMessageHandler implements IMessageHandler {
 	
 	@Override
 	public void handleMessage(Message message) {
+		if(!(message instanceof SignUpSuccesfullMessage)) {
+			throw new IllegalArgumentException("Illegal argument exception");
+		}
 		
+		appHandler.signUpSuccesfully();
+		appHandler.disconnectFromServer();
 	}
 
 }

@@ -7,6 +7,7 @@ import message.Message;
 
 public class ListOfFriendsMessageHandler implements IMessageHandler {
 
+	@SuppressWarnings("unused")
 	private AppHandler appHandler;
 	
 	public ListOfFriendsMessageHandler(AppHandler appHandler) {

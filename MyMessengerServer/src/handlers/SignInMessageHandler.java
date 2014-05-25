@@ -2,6 +2,7 @@ package handlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import threads.ServerThread;
 
@@ -34,8 +35,14 @@ public class SignInMessageHandler implements IMessageHandler {
 		SignInMessage signInMessage = (SignInMessage) message;
 		ManageUsers manageUsers = new ManageUsers();
 		User user = manageUsers.getUser(signInMessage.getUser());
+		boolean alreadyConnected = false;
+		
+		Set<String> onlineUsers = ServerThread.getOnlineUsers();
 
-		if (user == null) {
+		if (onlineUsers.contains(signInMessage.getUser()))
+			alreadyConnected = true;
+		
+		if (user == null || alreadyConnected ) {
 			handleLoginFailed();
 		} else {
 			if (signInMessage.getPassword().equals(user.getUserPassword())) {
@@ -61,7 +68,8 @@ public class SignInMessageHandler implements IMessageHandler {
 				for (Friend friend : user.friendOf) {
 					friendConnection = ServerThread.getConnectionByUsername(friend
 							.getUser().getUsername());
-					if (friendConnection != null) {
+					if (friendConnection != null
+							&& ServerThread.userOnline(friend.getUser().getUsername())) {
 						friendConnection.addToQueueConnection(userSignedInMessage);
 					}
 				}

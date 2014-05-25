@@ -20,14 +20,14 @@ public class ManageUsers {
 		User result = null;
 		try {
 			session = TransactionManager.getCurrentSession();
-			
+
 			Query query = session.createQuery("from User u where u.username = :username")
 					.setString("username", username);
 			List<User> users = query.list();
 			if (!users.isEmpty()) {
 				result = users.get(0);
 			}
-			
+
 			TransactionManager.commit();
 		} catch (HibernateException he) {
 			TransactionManager.rollback();

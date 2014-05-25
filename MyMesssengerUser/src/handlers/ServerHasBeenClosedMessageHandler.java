@@ -18,7 +18,7 @@ public class ServerHasBeenClosedMessageHandler implements IMessageHandler {
 			throw new IllegalArgumentException("Illegal message type: " + message.getClass().getName());
 		}
 		
-		
+		appHandler.serverHasBeenClosed();
 		
 	}
 

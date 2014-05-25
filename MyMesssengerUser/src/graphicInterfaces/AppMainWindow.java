@@ -1,78 +1,54 @@
 package graphicInterfaces;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import message.Message;
 import message.SignInMessage;
 import message.SignUpMessage;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 public class AppMainWindow {
 
-	private static JFrame frame;
-	private JTextField passwordTF;
-	private JTextField confirmPasswordTF;
-	private JTextField usernameTF;
-	public String name;
-	public ListOfUsersWindow listOfUsersWindow;
-	private static AppHandler appHandler;
-	@SuppressWarnings("unused")
-	private boolean isClosed = false;
+	private JFrame frame;
+	private JTextField usernameField;
+	private JPasswordField passwordField;
+	private JPasswordField confirmedPasswordField;
+	private String username;
+	private ListOfUsersWindow listOfUsersWindow;
+	private AppHandler appHandler;
 
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					@SuppressWarnings("unused")
-					AppMainWindow window = new AppMainWindow();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public ListOfUsersWindow getListOfUsersWindow() {
+		return listOfUsersWindow;
 	}
-
-	public static synchronized void closeWindow() {
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public synchronized void closeWindow() {
 		frame.dispose();
 	}
 
 	public void clearFields() {
-		usernameTF.setText("");
-		passwordTF.setText("");
-		confirmPasswordTF.setText("");
+		usernameField.setText("");
+		passwordField.setText("");
+		confirmedPasswordField.setText("");
 	}
 
-	public void close() {
-		isClosed = true;
-	}
-
-	private AppMainWindow() {
+	public AppMainWindow() {
 		initialize();
-		// run();
 	}
 
-	// public void run() {
-	//
-	// while(!isClosed) {
-	// try {
-	// sleep(1000);
-	// } catch (InterruptedException e) {
-	// e.printStackTrace();
-	// }
-	// }
-	//
-	// }
-
-	public static void setAppHandler(AppHandler handler) {
+	public void setAppHandler(AppHandler handler) {
 		appHandler = handler;
 	}
 
@@ -84,31 +60,38 @@ public class AppMainWindow {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
-		usernameTF = new JTextField();
-		usernameTF.setBounds(31, 110, 154, 20);
-		frame.getContentPane().add(usernameTF);
-		usernameTF.setColumns(10);
+		usernameField = new JTextField();
+		usernameField.setBounds(31, 110, 154, 20);
+		frame.getContentPane().add(usernameField);
+		usernameField.setColumns(10);
 
-		passwordTF = new JTextField();
-		passwordTF.setBounds(31, 157, 154, 20);
-		frame.getContentPane().add(passwordTF);
-		passwordTF.setColumns(10);
+		passwordField = new JPasswordField();
+		passwordField.setBounds(31, 157, 154, 20);
+		frame.getContentPane().add(passwordField);
+		passwordField.setColumns(10);
 
-		confirmPasswordTF = new JTextField();
-		confirmPasswordTF.setBounds(31, 204, 154, 20);
-		frame.getContentPane().add(confirmPasswordTF);
-		confirmPasswordTF.setColumns(10);
+		confirmedPasswordField = new JPasswordField();
+		confirmedPasswordField.setBounds(31, 204, 154, 20);
+		frame.getContentPane().add(confirmedPasswordField);
+		confirmedPasswordField.setColumns(10);
 
 		frame.setVisible(true);
 
-		passwordTF.addKeyListener(new KeyAdapter() {
+		passwordField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String username = new String(), password = new String();
-					username = usernameTF.getText();
-					password = passwordTF.getText();
+					
+					
+					String username = new String();
+					char pass[] = new char[30];
+					
+					username = usernameField.getText();
 
+					pass = passwordField.getPassword();
+
+					String password = new String(pass);
+					
 					if (username.equals("")) {
 						new WarningWindows("Username field is empty!");
 					} else {
@@ -133,18 +116,25 @@ public class AppMainWindow {
 		btnSignUp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				String username = new String(), password = new String(), passwordConfirm = new String();
+				String username = new String();
 
-				username = usernameTF.getText();
-				password = passwordTF.getText();
-				passwordConfirm = confirmPasswordTF.getText();
+				username = usernameField.getText();
+				
+				char pass[] = new char[30];
+				pass = passwordField.getPassword();
 
+				char passConfirmed[] = new char[30];
+				passConfirmed = confirmedPasswordField.getPassword();
+
+				String password = new String(pass);
+				String passwordConfirm = new String(passConfirmed);
+				
 				if (username.equals("")) {
 					new WarningWindows("Username field is empty!");
 				} else {
 					if (password.equals("") || passwordConfirm.equals("")
 							|| !password.equals(passwordConfirm)) {
-						new WarningWindows("Password field is empty!");
+						new WarningWindows("Password fields are empty or different!");
 					} else {
 
 						appHandler.connectToServer();
@@ -160,12 +150,19 @@ public class AppMainWindow {
 		btnSignUp.setBounds(57, 270, 98, 23);
 		frame.getContentPane().add(btnSignUp);
 
+		
+		
+		
 		JButton btnSignIn = new JButton("Sign In");
 		btnSignIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String username = new String(), password = new String();
-				username = usernameTF.getText();
-				password = passwordTF.getText();
+				String username = new String();
+				username = usernameField.getText();
+				
+				char pass[] = new char[30];
+				pass = passwordField.getPassword();
+
+				String password = new String(pass);
 
 				if (username.equals("")) {
 					new WarningWindows("Username field is empty!");
@@ -177,6 +174,7 @@ public class AppMainWindow {
 						appHandler.connectToServer();
 
 						Message signInMessage = new SignInMessage(username, password);
+
 						appHandler.setNameOfUser(username);
 
 						appHandler.addMessageToQueue(signInMessage);
@@ -203,7 +201,6 @@ public class AppMainWindow {
 	}
 
 	public void signUpSuccesfully() {
-		System.out.println("SignUpSuccesfully");
 		new WarningWindows("SignUp succesfully!");
 	}
 
@@ -213,6 +210,14 @@ public class AppMainWindow {
 
 	public void signUpUnsuccesfully() {
 		new WarningWindows("User already exists!");
+	}
+
+	public void addFriendSuccesfully() {
+		new WarningWindows("Friend added!");
+	}
+	
+	public void addFriendUnuccesfully() {
+		new WarningWindows("User not found!");
 	}
 
 }

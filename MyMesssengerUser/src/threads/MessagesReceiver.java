@@ -39,6 +39,8 @@ public class MessagesReceiver extends Thread {
 				message = (Message) objectInputStream.readObject();
 
 				MessageHandler.handleMessage(message, appHandler);
+				
+				System.out.println("am primit:" + message.getClass().getName());
 
 			}
 

@@ -23,21 +23,29 @@ public class SignUpMessageHandler implements IMessageHandler {
 			throw new IllegalArgumentException("Illegal message type");
 		}
 
+		long result = 0;
+		
 		SignUpMessage signUpMessage = (SignUpMessage) message;
 		ManageUsers manageUsers = new ManageUsers();
 		User newUser = new User();
-		newUser.setUsername(signUpMessage.getUser());
-		newUser.setUserPassword(signUpMessage.getPassword());
-		long result = manageUsers.addUser(newUser);
-
+		
+		User checkUser;
+		checkUser = manageUsers.getUser(signUpMessage.getUser());
+		
+		if(checkUser == null) {
+			newUser.setUsername(signUpMessage.getUser());
+			newUser.setUserPassword(signUpMessage.getPassword());
+			result = manageUsers.addUser(newUser);
+		}
+		
+		
 		if (result != 0) {
 			connection.addToQueueConnection(new SignUpSuccesfullMessage());
 		} else {
 			connection.addToQueueConnection(new SignUpUnsuccesfullMessage());
 		}
 		
-		connection.cancel();
-		// TODO KILL CONNECTION
+		//conexiunea o inchid din user
 	}
 
 }

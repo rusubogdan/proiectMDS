@@ -11,19 +11,16 @@ public class AddFriendSuccessfulMessageHandler implements IMessageHandler {
 	public AddFriendSuccessfulMessageHandler(AppHandler appHandler) {
 		this.appHandler = appHandler;
 	}
-	
+
 	@Override
 	public void handleMessage(Message message) {
 		if (!(message instanceof AddFriendSuccessfulMessage)) {
 			throw new IllegalArgumentException("Illegal message type: "
 					+ message.getClass().getName());
 		}
-		
-		AddFriendSuccessfulMessage addFriendSuccessfulMessage = (AddFriendSuccessfulMessage)message;
-		
-		
-		
-		
+
+		appHandler.addFriendSuccesfully();
+
 	}
 
 }

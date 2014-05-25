@@ -6,11 +6,13 @@ import message.AddFriendUnsuccessfulMessage;
 import message.ChatMessage;
 import message.ListOfFriendsMessage;
 import message.Message;
+import message.RequestedFriendInfo;
 import message.ServerHasBeenClosedMessage;
 import message.SignInSuccesfullMessage;
 import message.SignInUnsuccesfullMessage;
 import message.SignUpSuccesfullMessage;
 import message.SignUpUnsuccesfullMessage;
+import message.UserAlreadyFriend;
 import message.UserSignedInMessage;
 import message.UserSignedOutMessage;
 
@@ -54,6 +56,12 @@ public class MessageHandler {
 		}
 		if (message instanceof ServerHasBeenClosedMessage) {
 			messageHandler = new ServerHasBeenClosedMessageHandler(appHandler);
+		}
+		if (message instanceof UserAlreadyFriend) {
+			messageHandler = new UserAlreadyFriendHandler(appHandler);
+		}
+		if (message instanceof RequestedFriendInfo) {
+			messageHandler = new RequestedFriendInfoHandler(appHandler);
 		}
 
 		messageHandler.handleMessage(message);

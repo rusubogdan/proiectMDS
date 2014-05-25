@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -17,6 +19,8 @@ import javax.swing.JList;
 
 import message.AddFriendMessage;
 import message.ChatMessage;
+import message.RequestFriendInfo;
+import message.RequestedFriendInfo;
 
 public class ListOfUsersWindow extends Thread {
 
@@ -71,13 +75,11 @@ public class ListOfUsersWindow extends Thread {
 					continue;
 
 				String sender = message.getUser();
-				
+
 				finded = false;
 
 				for (UserChatWindow user : usersInChat) {
-					System.out.println("IN FOR ININTE DE IF");
 					if (user.getFriend().equals(sender)) {
-						System.out.println("IN FOR DUPA IF");
 						user.setMessage(message.getUser() + ": " + message.getMessage());
 						finded = true;
 						break;
@@ -100,19 +102,26 @@ public class ListOfUsersWindow extends Thread {
 
 	}
 
-	public synchronized static void addUsersToList(List<String> listOfUsers) {
-		System.out.println("adaugare useri la lista in listOfUsersWindow");
-
-		for (String name : listOfUsers) {
-			System.out.print(name);
-		}
-		System.out.println();
+	public static synchronized void addUsersToList(List<String> listOfUsers) {
 
 		listModel.clear();
 
 		for (String name : listOfUsers) {
 			listModel.addElement(name);
 		}
+	}
+
+	public static synchronized void addUserToList(String user) {
+		listModel.addElement(user);
+	}
+
+	public static synchronized void removeUserFromList(String user) {
+		listModel.removeElement(user);
+	}
+
+	private void addFriend() {
+		@SuppressWarnings("unused")
+		AddFriendWindow addFriendWindow = new AddFriendWindow(this);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -126,20 +135,41 @@ public class ListOfUsersWindow extends Thread {
 		frame.getContentPane().setLayout(null);
 		frame.setVisible(true);
 
-		JButton button = new JButton("+");
-		button.addActionListener(new ActionListener() {
+		JButton btnAddFriend = new JButton("Add friend");
+		btnAddFriend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AddFriendMessage addFriend = new AddFriendMessage(appHandler
-						.getUsername(), "mihai");
-				appHandler.addMessageToQueue(addFriend);
+				addFriend();
+			}
+
+		});
+		btnAddFriend.setBounds(27, 29, 105, 30);
+		frame.getContentPane().add(btnAddFriend);
+
+		JButton btnInfo = new JButton("Friend Info");
+		btnInfo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				List<Object> listOfUsers = (ArrayList<Object>) list
+						.getSelectedValuesList();
+				String friend = new String();
+
+				RequestFriendInfo requestFriendInfo;
+				
+				if (listOfUsers.size() == 1) {
+					requestFriendInfo = new RequestFriendInfo();
+
+					friend = (String) listOfUsers.get(0);
+					
+					requestFriendInfo.setUser(friend);
+					
+					appHandler.addMessageToQueue(requestFriendInfo);
+					
+				}
+
 			}
 		});
-		button.setBounds(10, 38, 41, 23);
-		frame.getContentPane().add(button);
-
-		JButton btnNewGroup = new JButton("New group");
-		btnNewGroup.setBounds(65, 38, 89, 23);
-		frame.getContentPane().add(btnNewGroup);
+		btnInfo.setBounds(126, 85, 105, 23);
+		frame.getContentPane().add(btnInfo);
 
 		list = new JList(listModel);
 		list.addMouseListener(new MouseAdapter() {
@@ -155,7 +185,6 @@ public class ListOfUsersWindow extends Thread {
 						return;
 					if (e.getClickCount() == 2) {
 						friend = (String) listOfUsers.get(0);
-						System.out.println("........................." + friend);
 
 						addToUsers(new UserChatWindow(friend, appHandler));
 
@@ -165,19 +194,54 @@ public class ListOfUsersWindow extends Thread {
 			}
 		});
 
-		list.setBounds(27, 89, 204, 253);
+		list.setBounds(27, 119, 204, 223);
 		frame.getContentPane().add(list);
 
 		JButton btnSignOut = new JButton("Sign Out");
 		btnSignOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				appHandler.signOut();
-				frame.dispose();
 
+				try {
+					sleep(3000);
+				} catch (InterruptedException ee) {
+					ee.printStackTrace();
+				}
+
+				frame.dispose();
 			}
 		});
-		btnSignOut.setBounds(168, 38, 89, 23);
+
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+
+				appHandler.signOut();
+
+				try {
+					sleep(3000);
+				} catch (InterruptedException ee) {
+					ee.printStackTrace();
+				}
+
+				frame.dispose();
+			}
+		});
+
+		btnSignOut.setBounds(173, 29, 84, 30);
 		frame.getContentPane().add(btnSignOut);
+		
+		JButton btnInfo_1 = new JButton("Info");
+		btnInfo_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				new UpdateInfoWindow(appHandler);
+				
+				
+			}
+		});
+		btnInfo_1.setBounds(27, 85, 89, 23);
+		frame.getContentPane().add(btnInfo_1);
 	}
 
 	public void closeWindow() {
@@ -186,5 +250,30 @@ public class ListOfUsersWindow extends Thread {
 
 	public static synchronized void addMessageToMessageQueue(ChatMessage message) {
 		messages.add(message);
+	}
+
+	public void addFriend(String friend) {
+		AddFriendMessage addFriend = new AddFriendMessage(appHandler.getUsername(),
+				friend);
+		appHandler.addMessageToQueue(addFriend);
+	}
+
+	public synchronized void serverHasBeenClosed() {
+		for (UserChatWindow chatWindow : usersInChat) {
+			chatWindow.closeConversation();
+		}
+
+		closeWindow();
+
+	}
+
+	public void userAlreadyFriend() {
+		new WarningWindows("You are friend with this user");
+	}
+
+	public void showInfo(RequestedFriendInfo requestedFriendInfo) {
+		
+		new FriendInfoWindow(requestedFriendInfo);
+		
 	}
 }

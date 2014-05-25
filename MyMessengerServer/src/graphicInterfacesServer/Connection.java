@@ -20,7 +20,7 @@ public class Connection extends Thread implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Socket clientSocket;
 	private boolean isCanceled = false;
-	private String username = null;
+	private String username;
 	private MessageSender messageSender;
 
 	public synchronized void cancel() {
@@ -43,6 +43,9 @@ public class Connection extends Thread implements Serializable {
 
 	public void run() {
 		try {
+			
+			
+			
 			clientSocket.setSoTimeout(5000);
 			ObjectInputStream inputStream = new ObjectInputStream(
 					clientSocket.getInputStream());
@@ -58,7 +61,7 @@ public class Connection extends Thread implements Serializable {
 				} catch (SocketTimeoutException ste) {
 					continue;
 				}
-				
+
 				messageObject = (Message) object;
 				MessageHandler.handleMessage(messageObject, this);
 			}
@@ -76,14 +79,16 @@ public class Connection extends Thread implements Serializable {
 		} catch (IOException e) {
 			System.out.println("ioexception connection");
 		} catch (NullPointerException npe) {
+			npe.printStackTrace();
 			System.out.println("socketul este NULL");
 		} finally {
-			System.out.println("...........................................");
-			ServerThread.removeFromOnlineUsers(username);
-			ServerThread.removeConnection(this);
-			this.messageSender.cancel();
 			try {
+				System.out.println("...........................................");
+				ServerThread.removeFromOnlineUsers(username);
+				ServerThread.removeConnection(this);
+				this.messageSender.cancel();
 				clientSocket.getInputStream().close();
+				isCanceled = true;
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
